@@ -113,10 +113,10 @@ const Dashboard = () => {
       <div className="glass-card rounded-lg p-4">
         <h3 className="font-display font-semibold text-sm text-foreground mb-3">Índice de Infraestrutura por Bairro</h3>
         {[
-          { name: "Centro", score: 72, trend: "+5" },
-          { name: "Vila Nova", score: 45, trend: "-2" },
-          { name: "Jardim América", score: 61, trend: "+8" },
-          { name: "Bela Vista", score: 83, trend: "+12" },
+          { name: "Meireles", score: 72, trend: "+5" },
+          { name: "Aldeota", score: 45, trend: "-2" },
+          { name: "Benfica", score: 61, trend: "+8" },
+          { name: "Mucuripe", score: 83, trend: "+12" },
         ].map((bairro) => (
           <div key={bairro.name} className="flex items-center gap-3 py-2 border-b border-border/30 last:border-0">
             <span className="text-xs font-medium text-foreground w-28">{bairro.name}</span>

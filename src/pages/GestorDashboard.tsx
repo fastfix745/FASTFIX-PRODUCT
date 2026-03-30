@@ -52,7 +52,7 @@ const GestorDashboard = () => {
             <Shield className="w-4 h-4 text-accent-foreground" />
           </div>
           <div>
-            <h1 className="font-display text-base font-bold leading-tight">InfraZeladoria</h1>
+            <h1 className="font-display text-base font-bold leading-tight">FastFix</h1>
             <p className="text-[10px] opacity-75">Painel do Gestor</p>
           </div>
         </div>
@@ -127,9 +127,9 @@ const GestorDashboard = () => {
                   }}
                 />
               ))}
-              <span className="absolute top-[20%] left-[15%] text-[10px] text-muted-foreground/50 uppercase tracking-widest">Centro</span>
-              <span className="absolute top-[60%] left-[65%] text-[10px] text-muted-foreground/50 uppercase tracking-widest">Vila Nova</span>
-              <span className="absolute top-[75%] left-[20%] text-[10px] text-muted-foreground/50 uppercase tracking-widest">Jardim</span>
+              <span className="absolute top-[20%] left-[15%] text-[10px] text-muted-foreground/50 uppercase tracking-widest">Meireles</span>
+              <span className="absolute top-[60%] left-[65%] text-[10px] text-muted-foreground/50 uppercase tracking-widest">Aldeota</span>
+              <span className="absolute top-[75%] left-[20%] text-[10px] text-muted-foreground/50 uppercase tracking-widest">Benfica</span>
             </div>
           </div>
 
