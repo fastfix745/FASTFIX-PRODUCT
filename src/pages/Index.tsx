@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Map, BarChart3, List, Plus, User, Bell } from "lucide-react";
+import { Map, BarChart3, List, Plus, User, Bell, Shield } from "lucide-react";
+import { Link } from "react-router-dom";
 import { mockProblems, Problem } from "@/lib/problems";
 import MapView from "@/components/MapView";
 import ProblemCard from "@/components/ProblemCard";
