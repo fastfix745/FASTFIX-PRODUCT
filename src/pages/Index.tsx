@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Map, BarChart3, List, Plus, User, Bell } from "lucide-react";
+import { Map, BarChart3, List, Plus, User, Bell, Shield } from "lucide-react";
+import { Link } from "react-router-dom";
 import { mockProblems, Problem } from "@/lib/problems";
 import MapView from "@/components/MapView";
 import ProblemCard from "@/components/ProblemCard";
@@ -48,6 +49,13 @@ const Index = () => {
             <Bell className="w-5 h-5" />
             <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-severity-critical" />
           </button>
+          <Link
+            to="/gestor"
+            className="flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-lg bg-primary-foreground/10 hover:bg-primary-foreground/20 transition-colors"
+          >
+            <Shield className="w-3.5 h-3.5" />
+            Gestor
+          </Link>
           <button className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
             <User className="w-4 h-4" />
           </button>
