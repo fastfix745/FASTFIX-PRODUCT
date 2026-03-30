@@ -41,9 +41,9 @@ const MapView = ({ problems, onSelectProblem }: MapViewProps) => {
       </svg>
 
       {/* Map labels */}
-      <span className="absolute top-[15%] left-[10%] text-[10px] font-body text-muted-foreground/40 uppercase tracking-widest">Centro</span>
-      <span className="absolute top-[60%] left-[70%] text-[10px] font-body text-muted-foreground/40 uppercase tracking-widest">Vila Nova</span>
-      <span className="absolute top-[80%] left-[15%] text-[10px] font-body text-muted-foreground/40 uppercase tracking-widest">Jardim América</span>
+      <span className="absolute top-[15%] left-[10%] text-[10px] font-body text-muted-foreground/40 uppercase tracking-widest">Meireles</span>
+      <span className="absolute top-[60%] left-[70%] text-[10px] font-body text-muted-foreground/40 uppercase tracking-widest">Aldeota</span>
+      <span className="absolute top-[80%] left-[15%] text-[10px] font-body text-muted-foreground/40 uppercase tracking-widest">Benfica</span>
 
       {/* Problem pins */}
       {problems.slice(0, 5).map((problem, index) => {
