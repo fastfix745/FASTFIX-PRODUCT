@@ -1,4 +1,5 @@
-import { mockProblems, Problem, severityConfig } from "@/lib/problems";
+import { severityConfig } from "@/lib/problems";
+import { Problem } from "@/hooks/useProblems";
 
 interface MapViewProps {
   problems: Problem[];
