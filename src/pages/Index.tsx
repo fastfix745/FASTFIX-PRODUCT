@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Map, BarChart3, List, Plus, User, Bell, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
-import { mockProblems, Problem } from "@/lib/problems";
+import { useProblems, useToggleUpvote, Problem } from "@/hooks/useProblems";
 import MapView from "@/components/MapView";
 import ProblemCard from "@/components/ProblemCard";
 import Dashboard from "@/components/Dashboard";
@@ -11,18 +11,17 @@ type Tab = "map" | "list" | "dashboard";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<Tab>("map");
-  const [problems, setProblems] = useState<Problem[]>(mockProblems);
   const [reportOpen, setReportOpen] = useState(false);
   const [selectedProblem, setSelectedProblem] = useState<Problem | null>(null);
 
+  const { data: problems = [], isLoading } = useProblems();
+  const toggleUpvote = useToggleUpvote();
+
   const handleUpvote = (id: string) => {
-    setProblems((prev) =>
-      prev.map((p) =>
-        p.id === id
-          ? { ...p, upvotes: p.hasUpvoted ? p.upvotes - 1 : p.upvotes + 1, hasUpvoted: !p.hasUpvoted }
-          : p
-      )
-    );
+    const problem = problems.find((p) => p.id === id);
+    if (problem) {
+      toggleUpvote.mutate({ problemId: id, hasUpvoted: problem.hasUpvoted });
+    }
   };
 
   const tabs: { key: Tab; label: string; icon: typeof Map }[] = [
@@ -64,10 +63,15 @@ const Index = () => {
 
       {/* Content */}
       <main className="flex-1 overflow-hidden relative">
-        {activeTab === "map" && (
+        {isLoading && (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-muted-foreground text-sm">Carregando...</p>
+          </div>
+        )}
+
+        {!isLoading && activeTab === "map" && (
           <div className="h-full relative">
             <MapView problems={problems} onSelectProblem={setSelectedProblem} />
-            {/* Selected problem overlay */}
             {selectedProblem && (
               <div className="absolute bottom-4 left-4 right-4 z-20">
                 <div className="relative">
@@ -84,13 +88,13 @@ const Index = () => {
           </div>
         )}
 
-        {activeTab === "list" && (
+        {!isLoading && activeTab === "list" && (
           <div className="h-full overflow-y-auto p-4 space-y-3 pb-24">
             <div className="flex items-center justify-between mb-2">
               <h2 className="font-display text-lg font-bold text-foreground">Reportes Recentes</h2>
               <span className="text-xs text-muted-foreground font-medium">{problems.length} problemas</span>
             </div>
-            {problems
+            {[...problems]
               .sort((a, b) => b.upvotes - a.upvotes)
               .map((problem) => (
                 <ProblemCard key={problem.id} problem={problem} onUpvote={handleUpvote} />
@@ -98,9 +102,9 @@ const Index = () => {
           </div>
         )}
 
-        {activeTab === "dashboard" && (
+        {!isLoading && activeTab === "dashboard" && (
           <div className="h-full overflow-y-auto p-4 pb-24">
-            <Dashboard />
+            <Dashboard problems={problems} />
           </div>
         )}
       </main>

@@ -1,15 +1,16 @@
 import { useState } from "react";
 import {
   BarChart3, CheckCircle2, Clock, AlertTriangle, Users, MapPin,
-  Search, Filter, ChevronDown, ArrowUpDown, Eye, MessageSquare,
-  TrendingUp, Flame, Shield, Settings, LogOut, Bell
+  Search, ArrowUpDown, Eye, MessageSquare,
+  TrendingUp, Flame, Shield, Bell
 } from "lucide-react";
-import { mockProblems, Problem, categoryConfig, severityConfig, statusConfig, Status } from "@/lib/problems";
-import { Badge } from "@/components/ui/badge";
+import { useProblems, useUpdateStatus, Problem } from "@/hooks/useProblems";
+import { categoryConfig, severityConfig, statusConfig, Status } from "@/lib/problems";
 import { Button } from "@/components/ui/button";
 
 const GestorDashboard = () => {
-  const [problems, setProblems] = useState<Problem[]>(mockProblems);
+  const { data: problems = [], isLoading } = useProblems();
+  const updateStatus = useUpdateStatus();
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [selectedProblem, setSelectedProblem] = useState<Problem | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -22,9 +23,7 @@ const GestorDashboard = () => {
   });
 
   const handleStatusChange = (id: string, newStatus: Status) => {
-    setProblems((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, status: newStatus } : p))
-    );
+    updateStatus.mutate({ id, status: newStatus });
     if (selectedProblem?.id === id) {
       setSelectedProblem((prev) => prev ? { ...prev, status: newStatus } : null);
     }
@@ -34,7 +33,7 @@ const GestorDashboard = () => {
   const pending = problems.filter((p) => p.status === "pending").length;
   const inProgress = problems.filter((p) => p.status === "in_progress").length;
   const resolved = problems.filter((p) => p.status === "resolved").length;
-  const avgUpvotes = Math.round(problems.reduce((sum, p) => sum + p.upvotes, 0) / totalProblems);
+  const avgUpvotes = totalProblems > 0 ? Math.round(problems.reduce((sum, p) => sum + p.upvotes, 0) / totalProblems) : 0;
 
   const stats = [
     { label: "Reportes Abertos", value: pending, icon: AlertTriangle, color: "text-severity-critical", bg: "bg-severity-critical/10", accent: "border-severity-critical" },
@@ -42,6 +41,14 @@ const GestorDashboard = () => {
     { label: "Resolvidos", value: resolved, icon: CheckCircle2, color: "text-severity-low", bg: "bg-severity-low/10", accent: "border-severity-low" },
     { label: "Média de Apoios", value: avgUpvotes, icon: TrendingUp, color: "text-accent", bg: "bg-accent/10", accent: "border-accent" },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Carregando...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -72,7 +79,7 @@ const GestorDashboard = () => {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-        {/* Stats row */}
+        {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((stat) => {
             const Icon = stat.icon;
@@ -92,7 +99,6 @@ const GestorDashboard = () => {
 
         {/* Heatmap + Priority */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Heatmap placeholder */}
           <div className="lg:col-span-2 glass-card rounded-xl p-5">
             <h3 className="font-display font-bold text-foreground text-sm mb-4 flex items-center gap-2">
               <Flame className="w-4 h-4 text-severity-critical" />
@@ -107,7 +113,6 @@ const GestorDashboard = () => {
                 </defs>
                 <rect width="100%" height="100%" fill="url(#grid-g)" />
               </svg>
-              {/* Heatmap circles */}
               {[
                 { top: "30%", left: "25%", size: "80px", opacity: 0.4, color: "hsl(var(--severity-critical))" },
                 { top: "50%", left: "60%", size: "60px", opacity: 0.3, color: "hsl(var(--severity-high))" },
@@ -115,17 +120,7 @@ const GestorDashboard = () => {
                 { top: "65%", left: "30%", size: "50px", opacity: 0.35, color: "hsl(var(--severity-medium))" },
                 { top: "25%", left: "70%", size: "45px", opacity: 0.2, color: "hsl(var(--severity-low))" },
               ].map((h, i) => (
-                <div
-                  key={i}
-                  className="absolute rounded-full blur-xl"
-                  style={{
-                    top: h.top, left: h.left,
-                    width: h.size, height: h.size,
-                    backgroundColor: h.color,
-                    opacity: h.opacity,
-                    transform: "translate(-50%, -50%)",
-                  }}
-                />
+                <div key={i} className="absolute rounded-full blur-xl" style={{ top: h.top, left: h.left, width: h.size, height: h.size, backgroundColor: h.color, opacity: h.opacity, transform: "translate(-50%, -50%)" }} />
               ))}
               <span className="absolute top-[20%] left-[15%] text-[10px] text-muted-foreground/50 uppercase tracking-widest">Meireles</span>
               <span className="absolute top-[60%] left-[65%] text-[10px] text-muted-foreground/50 uppercase tracking-widest">Aldeota</span>
@@ -133,7 +128,6 @@ const GestorDashboard = () => {
             </div>
           </div>
 
-          {/* Priority queue */}
           <div className="glass-card rounded-xl p-5">
             <h3 className="font-display font-bold text-foreground text-sm mb-4 flex items-center gap-2">
               <ArrowUpDown className="w-4 h-4 text-accent" />
@@ -144,11 +138,7 @@ const GestorDashboard = () => {
                 .sort((a, b) => b.upvotes - a.upvotes)
                 .slice(0, 5)
                 .map((p, i) => (
-                  <button
-                    key={p.id}
-                    onClick={() => setSelectedProblem(p)}
-                    className="w-full flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 transition-colors text-left"
-                  >
+                  <button key={p.id} onClick={() => setSelectedProblem(p)} className="w-full flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 transition-colors text-left">
                     <span className="text-xs font-bold text-muted-foreground w-5">#{i + 1}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold text-foreground truncate">{p.title}</p>
@@ -164,7 +154,7 @@ const GestorDashboard = () => {
           </div>
         </div>
 
-        {/* Problem management table */}
+        {/* Table */}
         <div className="glass-card rounded-xl p-5">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
             <h3 className="font-display font-bold text-foreground text-sm flex items-center gap-2">
@@ -174,12 +164,7 @@ const GestorDashboard = () => {
             <div className="flex items-center gap-2 w-full sm:w-auto">
               <div className="relative flex-1 sm:flex-none">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <input
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Buscar reportes..."
-                  className="w-full sm:w-56 pl-9 pr-3 py-2 rounded-lg border border-border bg-card text-foreground text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/50"
-                />
+                <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Buscar reportes..." className="w-full sm:w-56 pl-9 pr-3 py-2 rounded-lg border border-border bg-card text-foreground text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/50" />
               </div>
               <div className="flex gap-1">
                 {[
@@ -188,12 +173,7 @@ const GestorDashboard = () => {
                   { key: "in_progress", label: "Andamento" },
                   { key: "resolved", label: "Resolvidos" },
                 ].map((f) => (
-                  <button
-                    key={f.key}
-                    onClick={() => setSelectedStatus(f.key)}
-                    className={`text-[10px] sm:text-xs font-semibold px-2 sm:px-3 py-1.5 rounded-lg transition-colors
-                      ${selectedStatus === f.key ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
-                  >
+                  <button key={f.key} onClick={() => setSelectedStatus(f.key)} className={`text-[10px] sm:text-xs font-semibold px-2 sm:px-3 py-1.5 rounded-lg transition-colors ${selectedStatus === f.key ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}>
                     {f.label}
                   </button>
                 ))}
@@ -201,7 +181,6 @@ const GestorDashboard = () => {
             </div>
           </div>
 
-          {/* Table */}
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
@@ -257,10 +236,7 @@ const GestorDashboard = () => {
                         </select>
                       </td>
                       <td className="py-3 px-3 text-center">
-                        <button
-                          onClick={() => setSelectedProblem(p)}
-                          className="p-1.5 rounded-lg hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors"
-                        >
+                        <button onClick={() => setSelectedProblem(p)} className="p-1.5 rounded-lg hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors">
                           <Eye className="w-4 h-4" />
                         </button>
                       </td>
@@ -318,8 +294,7 @@ const GestorDashboard = () => {
                     <button
                       key={s}
                       onClick={() => handleStatusChange(selectedProblem.id, s)}
-                      className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all
-                        ${selectedProblem.status === s ? statusConfig[s].className : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
+                      className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all ${selectedProblem.status === s ? statusConfig[s].className : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
                     >
                       {statusConfig[s].label}
                     </button>
@@ -329,11 +304,7 @@ const GestorDashboard = () => {
 
               <div>
                 <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Resposta ao Cidadão</label>
-                <textarea
-                  placeholder="Escreva uma atualização para o cidadão..."
-                  rows={3}
-                  className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/50 resize-none"
-                />
+                <textarea placeholder="Escreva uma atualização para o cidadão..." rows={3} className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/50 resize-none" />
                 <Button className="w-full mt-2 bg-accent text-accent-foreground hover:bg-accent/90 font-semibold text-xs">
                   <MessageSquare className="w-3.5 h-3.5 mr-1.5" />
                   Enviar Resposta
