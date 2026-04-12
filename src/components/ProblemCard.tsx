@@ -1,5 +1,6 @@
 import { MapPin, ThumbsUp, Clock } from "lucide-react";
-import { Problem, categoryConfig, severityConfig, statusConfig } from "@/lib/problems";
+import { categoryConfig, severityConfig, statusConfig } from "@/lib/problems";
+import { Problem } from "@/hooks/useProblems";
 import { Badge } from "@/components/ui/badge";
 
 interface ProblemCardProps {
