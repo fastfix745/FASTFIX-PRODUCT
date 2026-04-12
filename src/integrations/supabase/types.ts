@@ -14,7 +14,86 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      problem_upvotes: {
+        Row: {
+          created_at: string
+          id: string
+          problem_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          problem_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          problem_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "problem_upvotes_problem_id_fkey"
+            columns: ["problem_id"]
+            isOneToOne: false
+            referencedRelation: "problems"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      problems: {
+        Row: {
+          address: string
+          category: Database["public"]["Enums"]["problem_category"]
+          created_at: string
+          description: string
+          id: string
+          image_url: string | null
+          lat: number
+          lng: number
+          reporter_name: string
+          severity: Database["public"]["Enums"]["problem_severity"]
+          status: Database["public"]["Enums"]["problem_status"]
+          title: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          address: string
+          category?: Database["public"]["Enums"]["problem_category"]
+          created_at?: string
+          description: string
+          id?: string
+          image_url?: string | null
+          lat: number
+          lng: number
+          reporter_name: string
+          severity?: Database["public"]["Enums"]["problem_severity"]
+          status?: Database["public"]["Enums"]["problem_status"]
+          title: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          address?: string
+          category?: Database["public"]["Enums"]["problem_category"]
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          lat?: number
+          lng?: number
+          reporter_name?: string
+          severity?: Database["public"]["Enums"]["problem_severity"]
+          status?: Database["public"]["Enums"]["problem_status"]
+          title?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +102,15 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      problem_category:
+        | "buraco"
+        | "iluminacao"
+        | "calcada"
+        | "saneamento"
+        | "area_verde"
+        | "outro"
+      problem_severity: "critical" | "high" | "medium" | "low"
+      problem_status: "pending" | "in_progress" | "resolved"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +237,17 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      problem_category: [
+        "buraco",
+        "iluminacao",
+        "calcada",
+        "saneamento",
+        "area_verde",
+        "outro",
+      ],
+      problem_severity: ["critical", "high", "medium", "low"],
+      problem_status: ["pending", "in_progress", "resolved"],
+    },
   },
 } as const
