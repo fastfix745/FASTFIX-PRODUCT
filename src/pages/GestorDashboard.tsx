@@ -5,7 +5,7 @@ import {
   TrendingUp, Flame, Shield, Bell
 } from "lucide-react";
 import { useProblems, useUpdateStatus, Problem } from "@/hooks/useProblems";
-import { categoryConfig, severityConfig, statusConfig, Status } from "@/lib/problems";
+import { categoryConfig, severityConfig, statusConfig, Status, formatDateBR, formatDateTimeBR } from "@/lib/problems";
 import { Button } from "@/components/ui/button";
 
 const GestorDashboard = () => {
@@ -206,7 +206,7 @@ const GestorDashboard = () => {
                           </div>
                           <div>
                             <p className="font-semibold text-foreground">{p.title}</p>
-                            <p className="text-muted-foreground text-[10px]">{p.reporterName} • {p.createdAt}</p>
+                            <p className="text-muted-foreground text-[10px]">{p.reporterName} • {formatDateBR(p.createdAt)}</p>
                           </div>
                         </div>
                       </td>
@@ -284,7 +284,7 @@ const GestorDashboard = () => {
 
               <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                 <Users className="w-4 h-4" />
-                Reportado por {selectedProblem.reporterName} em {selectedProblem.createdAt}
+                Reportado por {selectedProblem.reporterName} em {formatDateTimeBR(selectedProblem.createdAt)}
               </div>
 
               <div className="border-t border-border pt-4">

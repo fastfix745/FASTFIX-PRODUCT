@@ -118,3 +118,43 @@ export function useToggleUpvote() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["problems"] }),
   });
 }
+
+export interface NewProblemInput {
+  title: string;
+  description: string;
+  category: ProblemCategory;
+  severity: ProblemSeverity;
+  address: string;
+  lat: number;
+  lng: number;
+  reporterName: string;
+  imageUrl?: string | null;
+}
+
+export function useCreateProblem() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: NewProblemInput) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data, error } = await supabase
+        .from("problems")
+        .insert({
+          title: input.title,
+          description: input.description,
+          category: input.category,
+          severity: input.severity,
+          address: input.address,
+          lat: input.lat,
+          lng: input.lng,
+          reporter_name: input.reporterName,
+          image_url: input.imageUrl ?? null,
+          user_id: user?.id ?? null,
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["problems"] }),
+  });
+}

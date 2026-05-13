@@ -109,6 +109,10 @@ export type Database = {
         | "saneamento"
         | "area_verde"
         | "outro"
+        | "lixo"
+        | "transito"
+        | "seguranca"
+        | "sinalizacao"
       problem_severity: "critical" | "high" | "medium" | "low"
       problem_status: "pending" | "in_progress" | "resolved"
     }
@@ -245,6 +249,10 @@ export const Constants = {
         "saneamento",
         "area_verde",
         "outro",
+        "lixo",
+        "transito",
+        "seguranca",
+        "sinalizacao",
       ],
       problem_severity: ["critical", "high", "medium", "low"],
       problem_status: ["pending", "in_progress", "resolved"],
