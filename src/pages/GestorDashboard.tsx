@@ -5,7 +5,7 @@ import {
   TrendingUp, Flame, Shield, Bell
 } from "lucide-react";
 import { useProblems, useUpdateStatus, Problem } from "@/hooks/useProblems";
-import { categoryConfig, severityConfig, statusConfig, Status } from "@/lib/problems";
+import { categoryConfig, severityConfig, statusConfig, Status, formatDateBR, formatDateTimeBR } from "@/lib/problems";
 import { Button } from "@/components/ui/button";
 
 const GestorDashboard = () => {
