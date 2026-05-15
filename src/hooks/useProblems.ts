@@ -99,7 +99,7 @@ export function useUpdateMedia() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, before, after }: { id: string; before?: string[]; after?: string[] }) => {
-      const upd: Record<string, unknown> = {};
+      const upd: { before_images?: string[]; after_images?: string[] } = {};
       if (before) upd.before_images = before;
       if (after) upd.after_images = after;
       const { error } = await supabase.from("problems").update(upd).eq("id", id);
