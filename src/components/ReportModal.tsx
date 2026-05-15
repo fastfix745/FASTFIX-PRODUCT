@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { X, Camera, MapPin, Loader2, CheckCircle2, ChevronRight, ChevronLeft, Sparkles } from "lucide-react";
 import { ProblemCategory, Severity, categoryConfig, severityConfig } from "@/lib/problems";
-import { useCreateProblem } from "@/hooks/useProblems";
+import { useCreateProblem, uploadProblemMedia } from "@/hooks/useProblems";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ReportModalProps {
   isOpen: boolean;
@@ -15,8 +16,10 @@ type Coords = { lat: number; lng: number } | null;
 const STEPS = ["Foto", "Local", "Categoria", "Detalhes"];
 
 const ReportModal = ({ isOpen, onClose }: ReportModalProps) => {
+  const { user, profile } = useAuth();
   const [step, setStep] = useState(0);
   const [photos, setPhotos] = useState<string[]>([]);
+  const [photoFiles, setPhotoFiles] = useState<File[]>([]);
   const [coords, setCoords] = useState<Coords>(null);
   const [address, setAddress] = useState("");
   const [locating, setLocating] = useState(false);
@@ -41,7 +44,7 @@ const ReportModal = ({ isOpen, onClose }: ReportModalProps) => {
       },
       () => {
         setLocating(false);
-        toast({ title: "Não foi possível detectar sua localização", description: "Informe o endereço manualmente." });
+        toast.error("Não foi possível detectar localização", { description: "Informe o endereço manualmente." });
       },
       { enableHighAccuracy: true, timeout: 8000 }
     );
@@ -58,15 +61,11 @@ const ReportModal = ({ isOpen, onClose }: ReportModalProps) => {
 
   const onPickPhotos = (files: FileList | null) => {
     if (!files) return;
-    const arr: string[] = [];
-    Array.from(files).slice(0, 5).forEach((f) => {
+    const sliced = Array.from(files).slice(0, 5);
+    setPhotoFiles((prev) => [...prev, ...sliced].slice(0, 5));
+    sliced.forEach((f) => {
       const reader = new FileReader();
-      reader.onload = () => {
-        arr.push(reader.result as string);
-        if (arr.length === Math.min(files.length, 5)) {
-          setPhotos((prev) => [...prev, ...arr].slice(0, 5));
-        }
-      };
+      reader.onload = () => setPhotos((prev) => [...prev, reader.result as string].slice(0, 5));
       reader.readAsDataURL(f);
     });
   };
@@ -74,6 +73,10 @@ const ReportModal = ({ isOpen, onClose }: ReportModalProps) => {
   const handleSubmit = async () => {
     if (!category || !title || !address || !coords) return;
     try {
+      let imageUrl: string | null = null;
+      if (user && photoFiles[0]) {
+        try { imageUrl = await uploadProblemMedia(photoFiles[0], "reports"); } catch { /* fallback */ }
+      }
       await createProblem.mutateAsync({
         title,
         description: description || title,
@@ -82,15 +85,16 @@ const ReportModal = ({ isOpen, onClose }: ReportModalProps) => {
         address,
         lat: coords.lat,
         lng: coords.lng,
-        reporterName: reporterName || "Cidadão",
-        imageUrl: photos[0] ?? null,
+        reporterName: reporterName || profile?.display_name || "Cidadão",
+        imageUrl: imageUrl ?? photos[0] ?? null,
+        city: profile?.city,
       });
       setSubmitted(true);
-      toast({ title: "Reporte enviado com sucesso", description: "Sua ocorrência foi registrada e está em análise." });
+      toast.success("Reporte enviado com sucesso", { description: "Sua ocorrência foi registrada e está em análise." });
       setTimeout(close, 1800);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Tente novamente.";
-      toast({ title: "Erro ao enviar reporte", description: msg, variant: "destructive" });
+      toast.error("Erro ao enviar reporte", { description: msg });
     }
   };
 

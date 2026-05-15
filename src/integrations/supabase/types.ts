@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          link: string | null
+          read: boolean
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          link?: string | null
+          read?: boolean
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          link?: string | null
+          read?: boolean
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       problem_upvotes: {
         Row: {
           created_at: string
@@ -46,11 +76,15 @@ export type Database = {
       problems: {
         Row: {
           address: string
+          after_images: string[]
+          before_images: string[]
           category: Database["public"]["Enums"]["problem_category"]
+          city: string
           created_at: string
           description: string
           id: string
           image_url: string | null
+          is_public: boolean
           lat: number
           lng: number
           reporter_name: string
@@ -62,11 +96,15 @@ export type Database = {
         }
         Insert: {
           address: string
+          after_images?: string[]
+          before_images?: string[]
           category?: Database["public"]["Enums"]["problem_category"]
+          city?: string
           created_at?: string
           description: string
           id?: string
           image_url?: string | null
+          is_public?: boolean
           lat: number
           lng: number
           reporter_name: string
@@ -78,11 +116,15 @@ export type Database = {
         }
         Update: {
           address?: string
+          after_images?: string[]
+          before_images?: string[]
           category?: Database["public"]["Enums"]["problem_category"]
+          city?: string
           created_at?: string
           description?: string
           id?: string
           image_url?: string | null
+          is_public?: boolean
           lat?: number
           lng?: number
           reporter_name?: string
@@ -94,14 +136,73 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          city: string
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          city?: string
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          city?: string
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_city: { Args: { _user_id: string }; Returns: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
+      app_role: "citizen" | "manager" | "admin"
       problem_category:
         | "buraco"
         | "iluminacao"
@@ -242,6 +343,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["citizen", "manager", "admin"],
       problem_category: [
         "buraco",
         "iluminacao",

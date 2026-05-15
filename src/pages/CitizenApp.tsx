@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Map as MapIcon, BarChart3, List, Plus, Bell, Shield, ArrowLeft } from "lucide-react";
+import { Map as MapIcon, BarChart3, List, Plus, Shield, ArrowLeft, LogIn, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useProblems, useToggleUpvote, Problem } from "@/hooks/useProblems";
 import MapView from "@/components/MapView";
@@ -7,12 +7,16 @@ import ProblemCard from "@/components/ProblemCard";
 import Dashboard from "@/components/Dashboard";
 import ReportModal from "@/components/ReportModal";
 import ProblemTimeline from "@/components/ProblemTimeline";
+import NotificationBell from "@/components/NotificationBell";
+import BeforeAfterSlider from "@/components/BeforeAfterSlider";
 import { categoryConfig } from "@/lib/problems";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
 type Tab = "map" | "list" | "dashboard";
 
 const CitizenApp = () => {
+  const { user, profile, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>("map");
   const [reportOpen, setReportOpen] = useState(false);
   const [selectedProblem, setSelectedProblem] = useState<Problem | null>(null);
@@ -26,7 +30,7 @@ const CitizenApp = () => {
     if (!problem) return;
     toggleUpvote.mutate(
       { problemId: id, hasUpvoted: problem.hasUpvoted },
-      { onError: (e) => toast({ title: "Faça login para apoiar", description: (e as Error).message, variant: "destructive" }) }
+      { onError: (e) => toast.error("Faça login para apoiar", { description: (e as Error).message }) }
     );
   };
 
@@ -55,10 +59,19 @@ const CitizenApp = () => {
           >
             <ArrowLeft className="w-3.5 h-3.5" /> Início
           </Link>
-          <button className="p-2 rounded-full hover:bg-primary-foreground/10 transition-colors relative" aria-label="Notificações">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-severity-critical animate-pulse-glow" />
-          </button>
+          <NotificationBell />
+          {user ? (
+            <>
+              <span className="hidden sm:inline text-[11px] opacity-90 px-2">{profile?.city}</span>
+              <button onClick={() => signOut()} className="p-2 rounded-lg hover:bg-primary-foreground/10" aria-label="Sair">
+                <LogOut className="w-4 h-4" />
+              </button>
+            </>
+          ) : (
+            <Link to="/auth" className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-accent text-accent-foreground hover:opacity-90 transition-opacity">
+              <LogIn className="w-3.5 h-3.5" /> Entrar
+            </Link>
+          )}
           <Link
             to="/gestor"
             className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-primary-foreground/10 hover:bg-primary-foreground/20 transition-colors"
@@ -80,7 +93,7 @@ const CitizenApp = () => {
 
         {!isLoading && activeTab === "map" && (
           <div className="h-full relative">
-            <MapView problems={problems} onSelectProblem={setSelectedProblem} />
+            <MapView problems={problems} onSelectProblem={setSelectedProblem} centerCity={profile?.city} />
             {selectedProblem && (
               <div className="absolute bottom-4 left-4 right-4 z-20 animate-fade-in-up">
                 <div className="relative">
@@ -169,7 +182,12 @@ const CitizenApp = () => {
                 <span className="text-muted-foreground">×</span>
               </button>
             </div>
-            {detailProblem.imageUrl && (
+            {detailProblem.beforeImages.length > 0 && detailProblem.afterImages.length > 0 ? (
+              <div className="mb-4">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-success mb-2">Antes & Depois</p>
+                <BeforeAfterSlider before={detailProblem.beforeImages[0]} after={detailProblem.afterImages[0]} />
+              </div>
+            ) : detailProblem.imageUrl && (
               <img src={detailProblem.imageUrl} alt={detailProblem.title} className="w-full h-48 object-cover rounded-2xl mb-4" />
             )}
             <h4 className="font-display font-bold text-foreground text-base">{detailProblem.title}</h4>
