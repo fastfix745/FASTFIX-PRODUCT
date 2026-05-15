@@ -61,15 +61,11 @@ const ReportModal = ({ isOpen, onClose }: ReportModalProps) => {
 
   const onPickPhotos = (files: FileList | null) => {
     if (!files) return;
-    const arr: string[] = [];
-    Array.from(files).slice(0, 5).forEach((f) => {
+    const sliced = Array.from(files).slice(0, 5);
+    setPhotoFiles((prev) => [...prev, ...sliced].slice(0, 5));
+    sliced.forEach((f) => {
       const reader = new FileReader();
-      reader.onload = () => {
-        arr.push(reader.result as string);
-        if (arr.length === Math.min(files.length, 5)) {
-          setPhotos((prev) => [...prev, ...arr].slice(0, 5));
-        }
-      };
+      reader.onload = () => setPhotos((prev) => [...prev, reader.result as string].slice(0, 5));
       reader.readAsDataURL(f);
     });
   };
@@ -77,6 +73,10 @@ const ReportModal = ({ isOpen, onClose }: ReportModalProps) => {
   const handleSubmit = async () => {
     if (!category || !title || !address || !coords) return;
     try {
+      let imageUrl: string | null = null;
+      if (user && photoFiles[0]) {
+        try { imageUrl = await uploadProblemMedia(photoFiles[0], "reports"); } catch { /* fallback */ }
+      }
       await createProblem.mutateAsync({
         title,
         description: description || title,
@@ -85,8 +85,9 @@ const ReportModal = ({ isOpen, onClose }: ReportModalProps) => {
         address,
         lat: coords.lat,
         lng: coords.lng,
-        reporterName: reporterName || "Cidadão",
-        imageUrl: photos[0] ?? null,
+        reporterName: reporterName || profile?.display_name || "Cidadão",
+        imageUrl: imageUrl ?? photos[0] ?? null,
+        city: profile?.city,
       });
       setSubmitted(true);
       toast.success("Reporte enviado com sucesso", { description: "Sua ocorrência foi registrada e está em análise." });
