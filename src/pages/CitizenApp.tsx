@@ -93,7 +93,7 @@ const CitizenApp = () => {
 
         {!isLoading && activeTab === "map" && (
           <div className="h-full relative">
-            <MapView problems={problems} onSelectProblem={setSelectedProblem} />
+            <MapView problems={problems} onSelectProblem={setSelectedProblem} centerCity={profile?.city} />
             {selectedProblem && (
               <div className="absolute bottom-4 left-4 right-4 z-20 animate-fade-in-up">
                 <div className="relative">
@@ -182,7 +182,12 @@ const CitizenApp = () => {
                 <span className="text-muted-foreground">×</span>
               </button>
             </div>
-            {detailProblem.imageUrl && (
+            {detailProblem.beforeImages.length > 0 && detailProblem.afterImages.length > 0 ? (
+              <div className="mb-4">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-success mb-2">Antes & Depois</p>
+                <BeforeAfterSlider before={detailProblem.beforeImages[0]} after={detailProblem.afterImages[0]} />
+              </div>
+            ) : detailProblem.imageUrl && (
               <img src={detailProblem.imageUrl} alt={detailProblem.title} className="w-full h-48 object-cover rounded-2xl mb-4" />
             )}
             <h4 className="font-display font-bold text-foreground text-base">{detailProblem.title}</h4>
