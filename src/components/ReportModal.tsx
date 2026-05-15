@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { X, Camera, MapPin, Loader2, CheckCircle2, ChevronRight, ChevronLeft, Sparkles, LogIn } from "lucide-react";
+import { X, Camera, MapPin, Loader2, CheckCircle2, ChevronRight, ChevronLeft, Sparkles } from "lucide-react";
 import { ProblemCategory, Severity, categoryConfig, severityConfig } from "@/lib/problems";
 import { useCreateProblem, uploadProblemMedia } from "@/hooks/useProblems";
 import { Button } from "@/components/ui/button";
@@ -17,8 +16,10 @@ type Coords = { lat: number; lng: number } | null;
 const STEPS = ["Foto", "Local", "Categoria", "Detalhes"];
 
 const ReportModal = ({ isOpen, onClose }: ReportModalProps) => {
+  const { user, profile } = useAuth();
   const [step, setStep] = useState(0);
   const [photos, setPhotos] = useState<string[]>([]);
+  const [photoFiles, setPhotoFiles] = useState<File[]>([]);
   const [coords, setCoords] = useState<Coords>(null);
   const [address, setAddress] = useState("");
   const [locating, setLocating] = useState(false);
