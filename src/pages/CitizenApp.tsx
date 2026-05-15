@@ -30,7 +30,7 @@ const CitizenApp = () => {
     if (!problem) return;
     toggleUpvote.mutate(
       { problemId: id, hasUpvoted: problem.hasUpvoted },
-      { onError: (e) => toast({ title: "Faça login para apoiar", description: (e as Error).message, variant: "destructive" }) }
+      { onError: (e) => toast.error("Faça login para apoiar", { description: (e as Error).message }) }
     );
   };
 
@@ -59,10 +59,19 @@ const CitizenApp = () => {
           >
             <ArrowLeft className="w-3.5 h-3.5" /> Início
           </Link>
-          <button className="p-2 rounded-full hover:bg-primary-foreground/10 transition-colors relative" aria-label="Notificações">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-severity-critical animate-pulse-glow" />
-          </button>
+          <NotificationBell />
+          {user ? (
+            <>
+              <span className="hidden sm:inline text-[11px] opacity-90 px-2">{profile?.city}</span>
+              <button onClick={() => signOut()} className="p-2 rounded-lg hover:bg-primary-foreground/10" aria-label="Sair">
+                <LogOut className="w-4 h-4" />
+              </button>
+            </>
+          ) : (
+            <Link to="/auth" className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-accent text-accent-foreground hover:opacity-90 transition-opacity">
+              <LogIn className="w-3.5 h-3.5" /> Entrar
+            </Link>
+          )}
           <Link
             to="/gestor"
             className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-primary-foreground/10 hover:bg-primary-foreground/20 transition-colors"
