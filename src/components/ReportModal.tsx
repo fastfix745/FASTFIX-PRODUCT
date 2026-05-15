@@ -43,7 +43,7 @@ const ReportModal = ({ isOpen, onClose }: ReportModalProps) => {
       },
       () => {
         setLocating(false);
-        toast({ title: "Não foi possível detectar sua localização", description: "Informe o endereço manualmente." });
+        toast.error("Não foi possível detectar localização", { description: "Informe o endereço manualmente." });
       },
       { enableHighAccuracy: true, timeout: 8000 }
     );
@@ -88,11 +88,11 @@ const ReportModal = ({ isOpen, onClose }: ReportModalProps) => {
         imageUrl: photos[0] ?? null,
       });
       setSubmitted(true);
-      toast({ title: "Reporte enviado com sucesso", description: "Sua ocorrência foi registrada e está em análise." });
+      toast.success("Reporte enviado com sucesso", { description: "Sua ocorrência foi registrada e está em análise." });
       setTimeout(close, 1800);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Tente novamente.";
-      toast({ title: "Erro ao enviar reporte", description: msg, variant: "destructive" });
+      toast.error("Erro ao enviar reporte", { description: msg });
     }
   };
 
