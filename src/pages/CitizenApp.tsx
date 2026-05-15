@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Map as MapIcon, BarChart3, List, Plus, Bell, Shield, ArrowLeft } from "lucide-react";
+import { Map as MapIcon, BarChart3, List, Plus, Shield, ArrowLeft, LogIn, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useProblems, useToggleUpvote, Problem } from "@/hooks/useProblems";
 import MapView from "@/components/MapView";
@@ -7,12 +7,16 @@ import ProblemCard from "@/components/ProblemCard";
 import Dashboard from "@/components/Dashboard";
 import ReportModal from "@/components/ReportModal";
 import ProblemTimeline from "@/components/ProblemTimeline";
+import NotificationBell from "@/components/NotificationBell";
+import BeforeAfterSlider from "@/components/BeforeAfterSlider";
 import { categoryConfig } from "@/lib/problems";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
 type Tab = "map" | "list" | "dashboard";
 
 const CitizenApp = () => {
+  const { user, profile, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>("map");
   const [reportOpen, setReportOpen] = useState(false);
   const [selectedProblem, setSelectedProblem] = useState<Problem | null>(null);
