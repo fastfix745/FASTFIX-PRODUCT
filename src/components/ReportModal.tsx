@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { X, Camera, MapPin, Loader2, CheckCircle2, ChevronRight, ChevronLeft, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
+import { X, Camera, MapPin, Loader2, CheckCircle2, ChevronRight, ChevronLeft, Sparkles, LogIn } from "lucide-react";
 import { ProblemCategory, Severity, categoryConfig, severityConfig } from "@/lib/problems";
-import { useCreateProblem } from "@/hooks/useProblems";
+import { useCreateProblem, uploadProblemMedia } from "@/hooks/useProblems";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ReportModalProps {
   isOpen: boolean;
