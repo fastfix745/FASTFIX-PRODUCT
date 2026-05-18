@@ -62,16 +62,24 @@ const MapView = ({ problems, onSelectProblem, centerCity = "Fortaleza" }: MapVie
       <MapContainer
         center={center}
         zoom={13}
+        minZoom={3}
+        maxZoom={19}
         scrollWheelZoom
         touchZoom
         doubleClickZoom
         dragging
+        worldCopyJump={false}
+        maxBounds={[[-85, -180], [85, 180]]}
+        maxBoundsViscosity={1.0}
         style={{ width: "100%", height: "100%" }}
       >
         <Recenter center={center} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          noWrap
+          minZoom={3}
+          maxZoom={19}
         />
         {validProblems.map((p) => {
           const color = severityColors[p.severity] || "#94a3b8";
