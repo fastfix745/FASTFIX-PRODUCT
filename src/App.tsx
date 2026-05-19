@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index.tsx";
 import Auth from "./pages/Auth.tsx";
+import ResetPassword from "./pages/ResetPassword.tsx";
 import CitizenApp from "./pages/CitizenApp.tsx";
 import GestorDashboard from "./pages/GestorDashboard.tsx";
 import Transparencia from "./pages/Transparencia.tsx";
@@ -23,6 +24,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/app" element={<CitizenApp />} />
             <Route path="/gestor" element={<GestorDashboard />} />
             <Route path="/transparencia" element={<Transparencia />} />
