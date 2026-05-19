@@ -52,10 +52,13 @@ const MapView = ({ problems, onSelectProblem, centerCity = "Fortaleza" }: MapVie
   );
 
   return (
-    <div className="relative w-full h-full rounded-lg overflow-hidden">
+    <div className="relative w-full h-full rounded-lg overflow-hidden isolate" style={{ zIndex: 0 }}>
       <style>{`
         @keyframes fxPing { 0%{transform:scale(1);opacity:.4} 100%{transform:scale(2);opacity:0} }
-        .leaflet-container { background: hsl(var(--muted)); font-family: var(--font-body); }
+        .leaflet-container { background: hsl(var(--muted)); font-family: var(--font-body); position: relative; z-index: 0; }
+        .leaflet-pane, .leaflet-top, .leaflet-bottom { z-index: 1 !important; }
+        .leaflet-popup-pane { z-index: 5 !important; }
+        .leaflet-control { z-index: 5 !important; }
         .leaflet-popup-content-wrapper { border-radius: 12px; box-shadow: var(--shadow-elegant); }
         .leaflet-popup-content { margin: 12px 14px; }
       `}</style>
