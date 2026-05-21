@@ -161,6 +161,18 @@ const MapView = ({ problems, onSelectProblem, centerCity = "Fortaleza" }: MapVie
         })}
       </MapContainer>
 
+      <button
+        type="button"
+        onClick={handleLocate}
+        disabled={locating}
+        className="absolute top-4 right-4 z-[1000] w-11 h-11 rounded-full glass-card shadow-elegant flex items-center justify-center text-foreground hover:text-accent hover:scale-105 active:scale-95 transition disabled:opacity-70"
+        aria-label="Minha localização"
+        title="Minha localização"
+      >
+        {locating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Locate className="w-5 h-5" />}
+      </button>
+
+
       <div className="absolute bottom-4 left-4 z-[1000] glass-card rounded-lg p-3 shadow-elegant">
         <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Severidade</p>
         <div className="flex gap-3">
