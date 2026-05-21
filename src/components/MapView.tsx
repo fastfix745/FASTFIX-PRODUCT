@@ -1,8 +1,11 @@
-import { useEffect, useMemo } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { useEffect, useMemo, useState } from "react";
+import { MapContainer, TileLayer, Marker, Popup, useMap, CircleMarker } from "react-leaflet";
 import L, { LatLngExpression } from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { Locate, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Problem } from "@/hooks/useProblems";
+
 import { categoryConfig, severityConfig } from "@/lib/problems";
 
 interface MapViewProps {
@@ -43,8 +46,41 @@ const Recenter = ({ center }: { center: LatLngExpression }) => {
   return null;
 };
 
+const FlyTo = ({ position }: { position: [number, number] | null }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (position) map.flyTo(position, Math.max(map.getZoom(), 16), { duration: 1.2 });
+  }, [position, map]);
+  return null;
+};
+
 const MapView = ({ problems, onSelectProblem, centerCity = "Fortaleza" }: MapViewProps) => {
   const center: [number, number] = cityCoords[centerCity] || cityCoords.Fortaleza;
+  const [userPos, setUserPos] = useState<[number, number] | null>(null);
+  const [locating, setLocating] = useState(false);
+
+  const handleLocate = () => {
+    if (!("geolocation" in navigator)) {
+      toast.error("GPS indisponível", { description: "Seu navegador não suporta geolocalização." });
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserPos([pos.coords.latitude, pos.coords.longitude]);
+        setLocating(false);
+        toast.success("Localização encontrada");
+      },
+      (err) => {
+        setLocating(false);
+        toast.error("Não foi possível obter sua localização", {
+          description: err.code === 1 ? "Permita o acesso ao GPS nas configurações do navegador." : "Tente novamente.",
+        });
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+    );
+  };
+
 
   const validProblems = useMemo(
     () => problems.filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng)),
@@ -77,6 +113,17 @@ const MapView = ({ problems, onSelectProblem, centerCity = "Fortaleza" }: MapVie
         style={{ width: "100%", height: "100%" }}
       >
         <Recenter center={center} />
+        <FlyTo position={userPos} />
+        {userPos && (
+          <CircleMarker
+            center={userPos}
+            radius={9}
+            pathOptions={{ color: "#2563eb", fillColor: "#3b82f6", fillOpacity: 0.85, weight: 3 }}
+          >
+            <Popup>Você está aqui</Popup>
+          </CircleMarker>
+        )}
+
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -113,6 +160,18 @@ const MapView = ({ problems, onSelectProblem, centerCity = "Fortaleza" }: MapVie
           );
         })}
       </MapContainer>
+
+      <button
+        type="button"
+        onClick={handleLocate}
+        disabled={locating}
+        className="absolute top-4 right-4 z-[1000] w-11 h-11 rounded-full glass-card shadow-elegant flex items-center justify-center text-foreground hover:text-accent hover:scale-105 active:scale-95 transition disabled:opacity-70"
+        aria-label="Minha localização"
+        title="Minha localização"
+      >
+        {locating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Locate className="w-5 h-5" />}
+      </button>
+
 
       <div className="absolute bottom-4 left-4 z-[1000] glass-card rounded-lg p-3 shadow-elegant">
         <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Severidade</p>

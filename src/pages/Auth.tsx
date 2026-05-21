@@ -5,13 +5,8 @@ import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { MapPin, Loader2, ArrowLeft } from "lucide-react";
+import { MapPin, Loader2, ArrowLeft, Locate, CheckCircle2 } from "lucide-react";
 
-const CEARA_CITIES = [
-  "Fortaleza", "Caucaia", "Juazeiro do Norte", "Maracanaú", "Sobral",
-  "Crato", "Itapipoca", "Maranguape", "Iguatu", "Quixadá", "Pacatuba",
-  "Aquiraz", "Crateús", "Pacajus", "Russas", "Tianguá", "Outra",
-];
 
 type Mode = "login" | "signup" | "forgot";
 
@@ -45,8 +40,44 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [city, setCity] = useState("Fortaleza");
+  const [city, setCity] = useState("");
+  const [detectingCity, setDetectingCity] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const detectCity = async () => {
+    if (!("geolocation" in navigator)) {
+      toast.error("GPS indisponível", { description: "Seu navegador não suporta geolocalização." });
+      return;
+    }
+    setDetectingCity(true);
+    try {
+      const pos = await new Promise<GeolocationPosition>((res, rej) =>
+        navigator.geolocation.getCurrentPosition(res, rej, {
+          enableHighAccuracy: true, timeout: 10000, maximumAge: 60000,
+        })
+      );
+      const { latitude, longitude } = pos.coords;
+      const resp = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=pt-BR`,
+        { headers: { Accept: "application/json" } }
+      );
+      const data = await resp.json();
+      const a = data?.address ?? {};
+      const detected = a.city || a.town || a.village || a.municipality || a.county || "";
+      if (!detected) throw new Error("Cidade não identificada");
+      setCity(detected);
+      toast.success("Localização detectada", { description: detected });
+    } catch (err) {
+      const e = err as GeolocationPositionError | Error;
+      const denied = "code" in e && e.code === 1;
+      toast.error("Não foi possível detectar sua cidade", {
+        description: denied ? "Permita o acesso ao GPS no navegador." : "Tente novamente.",
+      });
+    } finally {
+      setDetectingCity(false);
+    }
+  };
+
 
   useEffect(() => {
     if (!authLoading && user) navigate("/app", { replace: true });
@@ -59,7 +90,7 @@ const Auth = () => {
     }
     if (mode === "signup") {
       if (displayName.trim().length < 2) return "Informe seu nome.";
-      if (!city) return "Selecione sua cidade.";
+      if (!city) return "Toque em Detectar via GPS para informar sua cidade.";
     }
     return null;
   };
@@ -166,14 +197,30 @@ const Auth = () => {
                 />
               </div>
               <div>
-                <label htmlFor="city" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Cidade</label>
-                <select
-                  id="city" value={city} onChange={(e) => setCity(e.target.value)}
-                  className="w-full mt-1.5 px-4 py-3 rounded-xl border border-border bg-card text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 transition"
-                >
-                  {CEARA_CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                </select>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Cidade</label>
+                <div className="mt-1.5 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={detectCity}
+                    disabled={detectingCity}
+                    className="flex-shrink-0 inline-flex items-center gap-2 px-3 py-3 rounded-xl border border-border bg-card text-foreground text-sm hover:bg-muted transition disabled:opacity-70"
+                  >
+                    {detectingCity ? <Loader2 className="w-4 h-4 animate-spin" /> : <Locate className="w-4 h-4" />}
+                    <span className="font-semibold">{city ? "Atualizar" : "Detectar via GPS"}</span>
+                  </button>
+                  <div className="flex-1 min-w-0 px-3 py-3 rounded-xl border border-border bg-muted/40 text-sm text-foreground flex items-center gap-2 truncate">
+                    {city ? (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
+                        <span className="truncate">{city}</span>
+                      </>
+                    ) : (
+                      <span className="text-muted-foreground">Nenhuma localização detectada</span>
+                    )}
+                  </div>
+                </div>
               </div>
+
             </>
           )}
           <div>
