@@ -197,14 +197,30 @@ const Auth = () => {
                 />
               </div>
               <div>
-                <label htmlFor="city" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Cidade</label>
-                <select
-                  id="city" value={city} onChange={(e) => setCity(e.target.value)}
-                  className="w-full mt-1.5 px-4 py-3 rounded-xl border border-border bg-card text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 transition"
-                >
-                  {CEARA_CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                </select>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Cidade</label>
+                <div className="mt-1.5 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={detectCity}
+                    disabled={detectingCity}
+                    className="flex-shrink-0 inline-flex items-center gap-2 px-3 py-3 rounded-xl border border-border bg-card text-foreground text-sm hover:bg-muted transition disabled:opacity-70"
+                  >
+                    {detectingCity ? <Loader2 className="w-4 h-4 animate-spin" /> : <Locate className="w-4 h-4" />}
+                    <span className="font-semibold">{city ? "Atualizar" : "Detectar via GPS"}</span>
+                  </button>
+                  <div className="flex-1 min-w-0 px-3 py-3 rounded-xl border border-border bg-muted/40 text-sm text-foreground flex items-center gap-2 truncate">
+                    {city ? (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
+                        <span className="truncate">{city}</span>
+                      </>
+                    ) : (
+                      <span className="text-muted-foreground">Nenhuma localização detectada</span>
+                    )}
+                  </div>
+                </div>
               </div>
+
             </>
           )}
           <div>
