@@ -5,13 +5,8 @@ import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { MapPin, Loader2, ArrowLeft } from "lucide-react";
+import { MapPin, Loader2, ArrowLeft, Locate, CheckCircle2 } from "lucide-react";
 
-const CEARA_CITIES = [
-  "Fortaleza", "Caucaia", "Juazeiro do Norte", "Maracanaú", "Sobral",
-  "Crato", "Itapipoca", "Maranguape", "Iguatu", "Quixadá", "Pacatuba",
-  "Aquiraz", "Crateús", "Pacajus", "Russas", "Tianguá", "Outra",
-];
 
 type Mode = "login" | "signup" | "forgot";
 
