@@ -9,6 +9,7 @@ import ReportModal from "@/components/ReportModal";
 import ProblemTimeline from "@/components/ProblemTimeline";
 import NotificationBell from "@/components/NotificationBell";
 import BeforeAfterSlider from "@/components/BeforeAfterSlider";
+import SeverityVoting from "@/components/SeverityVoting";
 import { categoryConfig } from "@/lib/problems";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
