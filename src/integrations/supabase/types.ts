@@ -44,6 +44,33 @@ export type Database = {
         }
         Relationships: []
       }
+      problem_severity_votes: {
+        Row: {
+          created_at: string
+          id: string
+          problem_id: string
+          severity: Database["public"]["Enums"]["problem_severity"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          problem_id: string
+          severity: Database["public"]["Enums"]["problem_severity"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          problem_id?: string
+          severity?: Database["public"]["Enums"]["problem_severity"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       problem_upvotes: {
         Row: {
           created_at: string
