@@ -1,8 +1,11 @@
-import { useEffect, useMemo } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { useEffect, useMemo, useState } from "react";
+import { MapContainer, TileLayer, Marker, Popup, useMap, CircleMarker } from "react-leaflet";
 import L, { LatLngExpression } from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { Locate, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Problem } from "@/hooks/useProblems";
+
 import { categoryConfig, severityConfig } from "@/lib/problems";
 
 interface MapViewProps {
