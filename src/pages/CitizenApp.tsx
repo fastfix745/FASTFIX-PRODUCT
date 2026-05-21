@@ -95,7 +95,7 @@ const CitizenApp = () => {
           <div className="h-full relative">
             <MapView problems={problems} onSelectProblem={setSelectedProblem} centerCity={profile?.city} />
             {selectedProblem && (
-              <div className="absolute bottom-4 left-4 right-4 z-20 animate-fade-in-up">
+              <div className="absolute bottom-4 left-4 right-4 sm:right-24 z-20 animate-fade-in-up pr-20 sm:pr-0">
                 <div className="relative">
                   <button
                     onClick={() => setSelectedProblem(null)}
