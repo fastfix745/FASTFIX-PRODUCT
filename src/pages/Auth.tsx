@@ -90,7 +90,7 @@ const Auth = () => {
     }
     if (mode === "signup") {
       if (displayName.trim().length < 2) return "Informe seu nome.";
-      if (!city) return "Selecione sua cidade.";
+      if (!city) return "Toque em Detectar via GPS para informar sua cidade.";
     }
     return null;
   };
