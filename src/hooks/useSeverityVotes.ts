@@ -4,7 +4,7 @@ import type { Database } from "@/integrations/supabase/types";
 
 export type SeverityLevel = Database["public"]["Enums"]["problem_severity"];
 
-export const severityLevels: SeverityLevel[] = ["low", "medium", "high", "urgent"];
+export const severityLevels: SeverityLevel[] = ["low", "medium", "high", "critical"];
 
 export const severityConfig: Record<SeverityLevel, { label: string; classes: string; activeClasses: string; dot: string }> = {
   low: {
@@ -25,7 +25,7 @@ export const severityConfig: Record<SeverityLevel, { label: string; classes: str
     activeClasses: "bg-accent/15 border-accent text-accent ring-2 ring-accent/40",
     dot: "bg-accent",
   },
-  urgent: {
+  critical: {
     label: "Urgente",
     classes: "border-destructive/30 text-destructive hover:bg-destructive/10",
     activeClasses: "bg-destructive/15 border-destructive text-destructive ring-2 ring-destructive/40",
@@ -47,7 +47,7 @@ async function fetchSeverityVotes(problemId: string): Promise<SeverityVotesData>
     .eq("problem_id", problemId);
   if (error) throw error;
 
-  const counts: Record<SeverityLevel, number> = { low: 0, medium: 0, high: 0, urgent: 0 };
+  const counts: Record<SeverityLevel, number> = { low: 0, medium: 0, high: 0, critical: 0 };
   (data ?? []).forEach((row) => {
     counts[row.severity as SeverityLevel] = (counts[row.severity as SeverityLevel] || 0) + 1;
   });
