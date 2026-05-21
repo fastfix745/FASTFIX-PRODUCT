@@ -46,8 +46,41 @@ const Recenter = ({ center }: { center: LatLngExpression }) => {
   return null;
 };
 
+const FlyTo = ({ position }: { position: [number, number] | null }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (position) map.flyTo(position, Math.max(map.getZoom(), 16), { duration: 1.2 });
+  }, [position, map]);
+  return null;
+};
+
 const MapView = ({ problems, onSelectProblem, centerCity = "Fortaleza" }: MapViewProps) => {
   const center: [number, number] = cityCoords[centerCity] || cityCoords.Fortaleza;
+  const [userPos, setUserPos] = useState<[number, number] | null>(null);
+  const [locating, setLocating] = useState(false);
+
+  const handleLocate = () => {
+    if (!("geolocation" in navigator)) {
+      toast.error("GPS indisponível", { description: "Seu navegador não suporta geolocalização." });
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserPos([pos.coords.latitude, pos.coords.longitude]);
+        setLocating(false);
+        toast.success("Localização encontrada");
+      },
+      (err) => {
+        setLocating(false);
+        toast.error("Não foi possível obter sua localização", {
+          description: err.code === 1 ? "Permita o acesso ao GPS nas configurações do navegador." : "Tente novamente.",
+        });
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+    );
+  };
+
 
   const validProblems = useMemo(
     () => problems.filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng)),
