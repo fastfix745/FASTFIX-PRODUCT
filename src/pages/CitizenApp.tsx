@@ -196,6 +196,7 @@ const CitizenApp = () => {
             <p className="text-xs text-muted-foreground mt-2">
               📍 {detailProblem.address} · {categoryConfig[detailProblem.category].label}
             </p>
+            <SeverityVoting problemId={detailProblem.id} />
             <div className="mt-6 pt-5 border-t border-border">
               <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Linha do tempo</p>
               <ProblemTimeline problem={detailProblem} />
