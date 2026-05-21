@@ -113,6 +113,17 @@ const MapView = ({ problems, onSelectProblem, centerCity = "Fortaleza" }: MapVie
         style={{ width: "100%", height: "100%" }}
       >
         <Recenter center={center} />
+        <FlyTo position={userPos} />
+        {userPos && (
+          <CircleMarker
+            center={userPos}
+            radius={9}
+            pathOptions={{ color: "#2563eb", fillColor: "#3b82f6", fillOpacity: 0.85, weight: 3 }}
+          >
+            <Popup>Você está aqui</Popup>
+          </CircleMarker>
+        )}
+
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
