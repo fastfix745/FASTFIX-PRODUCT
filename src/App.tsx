@@ -9,6 +9,7 @@ import Auth from "./pages/Auth.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import CitizenApp from "./pages/CitizenApp.tsx";
 import GestorDashboard from "./pages/GestorDashboard.tsx";
+import GestorPlanos from "./pages/GestorPlanos.tsx";
 import Transparencia from "./pages/Transparencia.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/app" element={<CitizenApp />} />
             <Route path="/gestor" element={<GestorDashboard />} />
+            <Route path="/gestor/planos" element={<GestorPlanos />} />
             <Route path="/transparencia" element={<Transparencia />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
