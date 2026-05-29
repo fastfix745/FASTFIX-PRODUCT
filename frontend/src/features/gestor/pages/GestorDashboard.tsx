@@ -1,0 +1,176 @@
+import { useState, lazy, Suspense } from "react";
+import { Loader2, Shield } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import {
+  useProblems,
+  useUpdateStatus,
+  useTogglePublic,
+  useUpdateMedia,
+  uploadProblemMedia,
+  Problem,
+} from "@/features/problems/hooks/useProblems";
+import { Status } from "@/features/problems/config/problems";
+import { Button } from "@/shared/components/ui/button";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { toast } from "sonner";
+import { KpiSkeleton, TableSkeleton } from "@/shared/components/ui/SkeletonLoaders";
+
+// Import subcomponents
+import { GestorHeader } from "../components/GestorHeader";
+import { KpiCards } from "../components/KpiCards";
+import { HeatmapMock } from "../components/HeatmapMock";
+import { PriorityList } from "../components/PriorityList";
+import { ProblemsTable } from "../components/ProblemsTable";
+
+// Importação lazy do modal para otimização de performance
+const ProblemDetailsModal = lazy(() => import("../components/ProblemDetailsModal"));
+
+const GestorDashboard = () => {
+  const { user, isManager, loading, signOut } = useAuth();
+  const navigate = useNavigate();
+  const { data: problems = [], isLoading } = useProblems();
+  const updateStatus = useUpdateStatus();
+  const togglePublic = useTogglePublic();
+  const updateMedia = useUpdateMedia();
+  const [selectedProblem, setSelectedProblem] = useState<Problem | null>(null);
+  const [uploadingBefore, setUploadingBefore] = useState(false);
+  const [uploadingAfter, setUploadingAfter] = useState(false);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-mesh p-4">
+        <div className="glass-card rounded-3xl p-8 max-w-sm text-center shadow-elegant">
+          <Shield className="w-10 h-10 mx-auto text-accent mb-3" />
+          <h2 className="font-display font-bold text-xl text-foreground">Acesso restrito</h2>
+          <p className="text-sm text-muted-foreground mt-2">Faça login para acessar o painel do gestor.</p>
+          <Button onClick={() => navigate("/auth")} className="mt-5 w-full bg-gradient-accent text-accent-foreground font-bold">
+            Entrar
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isManager) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-mesh p-4">
+        <div className="glass-card rounded-3xl p-8 max-w-md text-center shadow-elegant">
+          <Shield className="w-10 h-10 mx-auto text-severity-high mb-3" />
+          <h2 className="font-display font-bold text-xl text-foreground">Permissão necessária</h2>
+          <p className="text-sm text-muted-foreground mt-2">
+            Esta área é exclusiva para gestores municipais. Solicite acesso ao administrador da plataforma.
+          </p>
+          <Button onClick={() => navigate("/app")} variant="outline" className="mt-5">
+            Voltar ao app
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const handleStatusChange = (id: string, newStatus: Status) => {
+    updateStatus.mutate({ id, status: newStatus });
+    if (selectedProblem?.id === id) setSelectedProblem((prev) => (prev ? { ...prev, status: newStatus } : null));
+  };
+
+  const handleTogglePublic = (id: string, isPublic: boolean) => {
+    togglePublic.mutate(
+      { id, isPublic },
+      {
+        onSuccess: () => toast.success(isPublic ? "Denúncia pública" : "Denúncia privada"),
+      }
+    );
+    if (selectedProblem?.id === id) setSelectedProblem((prev) => (prev ? { ...prev, isPublic } : null));
+  };
+
+  const handleUpload = async (kind: "before" | "after", files: FileList | null) => {
+    if (!files || !selectedProblem) return;
+    const setter = kind === "before" ? setUploadingBefore : setUploadingAfter;
+    setter(true);
+    try {
+      const urls: string[] = [];
+      for (const f of Array.from(files).slice(0, 4)) {
+        urls.push(await uploadProblemMedia(f, `${selectedProblem.id}/${kind}`));
+      }
+      const current = kind === "before" ? selectedProblem.beforeImages : selectedProblem.afterImages;
+      const next = [...current, ...urls];
+      await updateMedia.mutateAsync({
+        id: selectedProblem.id,
+        ...(kind === "before" ? { before: next } : { after: next }),
+      });
+      setSelectedProblem((prev) =>
+        prev
+          ? {
+              ...prev,
+              ...(kind === "before" ? { beforeImages: next } : { afterImages: next }),
+            }
+          : null
+      );
+      toast.success(`Foto(s) "${kind === "before" ? "Antes" : "Depois"}" enviadas`);
+    } catch (e) {
+      toast.error("Erro no upload", { description: (e as Error).message });
+    } finally {
+      setter(false);
+    }
+  };
+
+  const totalProblems = problems.length;
+  const pending = problems.filter((p) => p.status === "pending").length;
+  const inProgress = problems.filter((p) => p.status === "in_progress").length;
+  const resolved = problems.filter((p) => p.status === "resolved").length;
+  const avgUpvotes = totalProblems > 0 ? Math.round(problems.reduce((s, p) => s + p.upvotes, 0) / totalProblems) : 0;
+
+  return (
+    <div className="min-h-screen bg-background">
+      <GestorHeader signOut={signOut} />
+
+      {isLoading ? (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+          <KpiSkeleton />
+          <TableSkeleton />
+        </div>
+      ) : (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+          <KpiCards pending={pending} inProgress={inProgress} resolved={resolved} avgUpvotes={avgUpvotes} />
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <HeatmapMock />
+            <PriorityList problems={problems} onSelectProblem={setSelectedProblem} />
+          </div>
+
+          <ProblemsTable
+            problems={problems}
+            onSelectProblem={setSelectedProblem}
+            handleStatusChange={handleStatusChange}
+            handleTogglePublic={handleTogglePublic}
+          />
+        </div>
+      )}
+
+      {/* Lazy loaded details modal */}
+      <Suspense fallback={null}>
+        {selectedProblem && (
+          <ProblemDetailsModal
+            selectedProblem={selectedProblem}
+            onClose={() => setSelectedProblem(null)}
+            handleStatusChange={handleStatusChange}
+            handleTogglePublic={handleTogglePublic}
+            handleUpload={handleUpload}
+            uploadingBefore={uploadingBefore}
+            uploadingAfter={uploadingAfter}
+          />
+        )}
+      </Suspense>
+    </div>
+  );
+};
+
+export default GestorDashboard;

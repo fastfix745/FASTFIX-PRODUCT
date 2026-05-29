@@ -1,0 +1,43 @@
+import { lazy, Suspense } from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { AppProviders } from "@/layouts/AppProviders";
+import { Loader2 } from "lucide-react";
+
+const Index = lazy(() => import("@/features/landing/pages/Index"));
+const Auth = lazy(() => import("@/features/auth/pages/Auth"));
+const ResetPassword = lazy(() => import("@/features/auth/pages/ResetPassword"));
+const CitizenApp = lazy(() => import("@/features/citizen/pages/CitizenApp"));
+const GestorDashboard = lazy(() => import("@/features/gestor/pages/GestorDashboard"));
+const GestorPlanos = lazy(() => import("@/features/gestor/pages/GestorPlanos"));
+const Transparencia = lazy(() => import("@/features/transparencia/pages/Transparencia"));
+const NotFound = lazy(() => import("@/layouts/NotFound"));
+
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="text-center flex flex-col items-center gap-2">
+      <Loader2 className="w-10 h-10 animate-spin text-accent" />
+      <p className="text-muted-foreground text-sm font-medium animate-pulse">Carregando...</p>
+    </div>
+  </div>
+);
+
+const App = () => (
+  <AppProviders>
+    <BrowserRouter>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/app" element={<CitizenApp />} />
+          <Route path="/gestor" element={<GestorDashboard />} />
+          <Route path="/gestor/planos" element={<GestorPlanos />} />
+          <Route path="/transparencia" element={<Transparencia />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
+    </BrowserRouter>
+  </AppProviders>
+);
+
+export default App;

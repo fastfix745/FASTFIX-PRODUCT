@@ -9,7 +9,10 @@ lerna-debug.log*
 
 node_modules
 dist
+frontend/dist
 dist-ssr
+bun.lock
+bun.lockb
 *.local
 
 # Editor directories and files

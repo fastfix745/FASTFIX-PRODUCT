@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
 export default defineConfig({
+  root: path.resolve(__dirname, "frontend"),
   plugins: [react()],
   test: {
     environment: "jsdom",
@@ -11,6 +12,6 @@ export default defineConfig({
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
   },
   resolve: {
-    alias: { "@": path.resolve(__dirname, "./src") },
+    alias: { "@": path.resolve(__dirname, "frontend/src") },
   },
 });
