@@ -10,6 +10,7 @@ export default defineConfig({
     outDir: path.resolve(__dirname, "dist"),
     emptyOutDir: true,
   },
+
   server: {
     host: "::",
     port: 8080,
