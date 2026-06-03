@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx -p typescript@5.8 tsc --help)"
+    ]
+  }
+}

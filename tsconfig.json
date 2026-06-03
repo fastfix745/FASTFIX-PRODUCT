@@ -5,16 +5,11 @@
     { "path": "./tsconfig.node.json" }
   ],
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./frontend/src/*"]
-    },
     "allowJs": true,
     "noImplicitAny": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "skipLibCheck": true,
-    "strictNullChecks": false,
-    "ignoreDeprecations": "6.0"
+    "strictNullChecks": false
   }
 }
