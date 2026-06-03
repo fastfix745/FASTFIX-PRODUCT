@@ -17,7 +17,7 @@ Plataforma que conecta cidadãos e prefeituras para reportar e resolver problema
 
 ```bash
 git clone https://github.com/fastfix745/FASTFIX-PRODUCT.git
-cd FASTFIX-PRODUCT
+cd FastFix-Product
 ```
 
 ### 2. Instale as dependências
