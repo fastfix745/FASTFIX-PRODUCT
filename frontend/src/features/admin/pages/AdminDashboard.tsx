@@ -6,7 +6,7 @@ import {
   useUpdateStatus,
   useTogglePublic,
   useUpdateMedia,
-  useResponse,
+  useUpdateProblemResponse,
   uploadProblemMedia,
   Problem,
 } from "@/features/problems/hooks/useProblems";
@@ -33,7 +33,7 @@ const AdminDashboard = () => {
   const updateStatus = useUpdateStatus();
   const togglePublic = useTogglePublic();
   const updateMedia = useUpdateMedia();
-  const sendResponse = useResponse();
+  const sendResponse = useUpdateProblemResponse();
   const [selectedProblem, setSelectedProblem] = useState<Problem | null>(null);
   const [uploadingBefore, setUploadingBefore] = useState(false);
   const [uploadingAfter, setUploadingAfter] = useState(false);
