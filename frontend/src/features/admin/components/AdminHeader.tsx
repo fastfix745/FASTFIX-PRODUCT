@@ -1,11 +1,16 @@
-import { Shield, Settings, LogOut, BarChart3, Globe } from "lucide-react";
+import { Shield, Settings, LogOut, BarChart3, Globe, User } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 interface AdminHeaderProps {
   signOut: () => Promise<void>;
 }
 
 export const AdminHeader = ({ signOut }: AdminHeaderProps) => {
+  const { profile, user } = useAuth();
+
+  const displayName = profile?.display_name || user?.email?.split('@')[0] || 'Admin';
+
   return (
     <header className="bg-gradient-primary text-primary-foreground px-4 sm:px-6 py-4 shadow-elegant">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -27,6 +32,10 @@ export const AdminHeader = ({ signOut }: AdminHeaderProps) => {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 text-sm opacity-90">
+            <User className="w-4 h-4" />
+            <span className="hidden sm:inline">{displayName}</span>
+          </div>
           <Button
             variant="ghost"
             size="sm"
