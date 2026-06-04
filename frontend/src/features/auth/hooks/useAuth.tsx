@@ -35,7 +35,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    const { data: { subscription } } = onAuthStateChange(async (_evt, sess) => {
+    const { data: { subscription } } = onAuthStateChange(async (evt, sess) => {
+      // Handle expired refresh token
+      if (evt === "TOKEN_REFRESHED" && !sess) {
+        console.warn("Refresh token expired, forcing sign out");
+        await authSignOut();
+        setSession(null);
+        setUser(null);
+        setProfile(null);
+        setRoles([]);
+        window.location.href = "/auth?expired=true";
+        return;
+      }
       setSession(sess);
       setUser(sess?.user ?? null);
       if (sess?.user) {
