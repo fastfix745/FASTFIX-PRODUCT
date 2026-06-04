@@ -3,7 +3,7 @@ import { Shield, Eye, LogOut, Settings, Cpu } from "lucide-react";
 import NotificationBell from "@/features/notifications/components/NotificationBell";
 
 interface GestorHeaderProps {
-  signOut: () => void;
+  signOut: () => Promise<void>;
   isAdmin?: boolean;
 }
 

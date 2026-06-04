@@ -1,11 +1,17 @@
 import { supabase } from "@/services/supabase/client";
 import type { NewProblemInput, Problem, ProblemStatus } from "@/types/problem";
 
-export async function fetchProblems(): Promise<Problem[]> {
-  const { data: problems, error } = await supabase
+export async function fetchProblems(city?: string): Promise<Problem[]> {
+  let query = supabase
     .from("problems")
     .select("*")
     .order("created_at", { ascending: false });
+
+  if (city) {
+    query = query.eq("city", city);
+  }
+
+  const { data: problems, error } = await query;
   if (error) throw error;
 
   const { data: upvoteCounts } = await supabase.from("problem_upvotes").select("problem_id");

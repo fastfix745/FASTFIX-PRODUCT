@@ -19,6 +19,10 @@ export function invalidateProblems(client: QueryClient) {
   return client.invalidateQueries({ queryKey: queryKeys.problems.all });
 }
 
+export function invalidateProblemsByCity(client: QueryClient, city: string) {
+  return client.invalidateQueries({ queryKey: queryKeys.problems.byCity(city) });
+}
+
 export function invalidateSeverityVotes(client: QueryClient, problemId: string) {
   return client.invalidateQueries({ queryKey: queryKeys.severityVotes.byProblem(problemId) });
 }
