@@ -12,7 +12,7 @@ const SeverityVoting = ({ problemId }: Props) => {
   const { data, isLoading } = useSeverityVotes(problemId);
   const cast = useCastSeverityVote(problemId);
 
-  const counts = data?.counts ?? { low: 0, medium: 0, high: 0, urgent: 0 };
+  const counts = data?.counts ?? { low: 0, medium: 0, high: 0, critical: 0 };
   const total = data?.total ?? 0;
   const top = data?.topSeverity ?? null;
   const userVote = data?.userVote ?? null;
