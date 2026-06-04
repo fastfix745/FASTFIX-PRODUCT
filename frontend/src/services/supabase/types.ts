@@ -115,6 +115,8 @@ export type Database = {
           lat: number
           lng: number
           reporter_name: string
+          response: string | null
+          response_created_at: string | null
           severity: Database["public"]["Enums"]["problem_severity"]
           status: Database["public"]["Enums"]["problem_status"]
           title: string
@@ -135,6 +137,8 @@ export type Database = {
           lat: number
           lng: number
           reporter_name: string
+          response?: string | null
+          response_created_at?: string | null
           severity?: Database["public"]["Enums"]["problem_severity"]
           status?: Database["public"]["Enums"]["problem_status"]
           title: string
@@ -155,6 +159,8 @@ export type Database = {
           lat?: number
           lng?: number
           reporter_name?: string
+          response?: string | null
+          response_created_at?: string | null
           severity?: Database["public"]["Enums"]["problem_severity"]
           status?: Database["public"]["Enums"]["problem_status"]
           title?: string

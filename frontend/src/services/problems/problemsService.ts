@@ -1,21 +1,11 @@
 import { supabase } from "@/services/supabase/client";
 import type { NewProblemInput, Problem, ProblemStatus } from "@/types/problem";
 
-const normalizeCity = (city: string) => city.trim().toLowerCase();
-
-export async function fetchProblems(city?: string): Promise<Problem[]> {
-  let query = supabase.from("problems").select("*").order("created_at", { ascending: false });
-
-  // Só filtra se city for uma string válida (não objeto, não vazio)
-  if (city && typeof city === "string" && city.trim().length > 0) {
-    const normalizedCity = normalizeCity(city);
-    console.log("Filtrando problemas pela cidade:", normalizedCity);
-    query = query.eq("city", normalizedCity);
-  } else {
-    console.log("Buscando todos os problemas (sem filtro de cidade)");
-  }
-
-  const { data: problems, error } = await query;
+export async function fetchProblems(): Promise<Problem[]> {
+  const { data: problems, error } = await supabase
+    .from("problems")
+    .select("*")
+    .order("created_at", { ascending: false });
   if (error) throw error;
 
   const { data: upvoteCounts } = await supabase.from("problem_upvotes").select("problem_id");
@@ -54,6 +44,14 @@ export async function fetchProblems(city?: string): Promise<Problem[]> {
   }));
 }
 
+export async function updateProblemResponse(id: string, response: string): Promise<void> {
+  const { error } = await supabase
+    .from("problems")
+    .update({ response, response_created_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw error;
+}
+
 export async function updateProblemStatus(id: string, status: ProblemStatus): Promise<void> {
   const { error } = await supabase.from("problems").update({ status }).eq("id", id);
   if (error) throw error;
@@ -64,11 +62,7 @@ export async function updateProblemPublic(id: string, isPublic: boolean): Promis
   if (error) throw error;
 }
 
-export async function updateProblemMedia(
-  id: string,
-  before?: string[],
-  after?: string[],
-): Promise<void> {
+export async function updateProblemMedia(id: string, before?: string[], after?: string[]): Promise<void> {
   const upd: { before_images?: string[]; after_images?: string[] } = {};
   if (before) upd.before_images = before;
   if (after) upd.after_images = after;
@@ -103,12 +97,9 @@ export async function createProblem(input: NewProblemInput) {
     reporter_name: input.reporterName,
     image_url: input.imageUrl ?? null,
     user_id: user?.id ?? null,
-    ...(input.city ? { city: normalizeCity(input.city) } : {}),
+    ...(input.city ? { city: input.city } : {}),
   }).select().single();
-  if (error) {
-    console.error("Erro ao criar problema:", error);
-    throw error;
-  }
+  if (error) throw error;
   return data;
 }
 
@@ -122,12 +113,4 @@ export async function uploadProblemMedia(file: File, folder: string): Promise<st
   if (error) throw error;
   const { data } = supabase.storage.from("problem-media").getPublicUrl(path);
   return data.publicUrl;
-}
-
-export async function updateProblemResponse(id: string, response: string): Promise<void> {
-  const { error } = await supabase.from("problems").update({
-    response,
-    response_created_at: new Date().toISOString(),
-  }).eq("id", id);
-  if (error) throw error;
 }
