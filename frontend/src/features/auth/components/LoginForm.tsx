@@ -1,5 +1,5 @@
-import { memo } from "react";
-import { Loader2 } from "lucide-react";
+import { memo, useState } from "react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { type AuthMode } from "@/features/auth/utils/friendlyError";
 
@@ -22,6 +22,7 @@ export const LoginForm = memo(({
   onSubmit,
   setMode,
 }: LoginFormProps) => {
+  const [showPassword, setShowPassword] = useState(false);
   return (
     <form onSubmit={onSubmit} className="space-y-3 mt-6" noValidate>
       <div>
@@ -54,17 +55,31 @@ export const LoginForm = memo(({
             Esqueci minha senha
           </button>
         </div>
-        <input
-          id="password"
-          required
-          type="password"
-          minLength={6}
-          autoComplete="current-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="••••••••"
-          className="w-full mt-1.5 px-4 py-3 rounded-xl border border-border bg-card text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 transition"
-        />
+        <div className="relative mt-1.5">
+          <input
+            id="password"
+            required
+            type={showPassword ? "text" : "password"}
+            minLength={6}
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            className="w-full px-4 py-3 pr-12 rounded-xl border border-border bg-card text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 transition"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg hover:bg-muted transition-colors"
+            aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+          >
+            {showPassword ? (
+              <EyeOff className="w-4 h-4 text-muted-foreground" />
+            ) : (
+              <Eye className="w-4 h-4 text-muted-foreground" />
+            )}
+          </button>
+        </div>
       </div>
 
       <Button

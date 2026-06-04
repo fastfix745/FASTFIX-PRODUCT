@@ -9,7 +9,9 @@ const ResetPassword = lazy(() => import("@/features/auth/pages/ResetPassword"));
 const CitizenApp = lazy(() => import("@/features/citizen/pages/CitizenApp"));
 const GestorDashboard = lazy(() => import("@/features/gestor/pages/GestorDashboard"));
 const GestorPlanos = lazy(() => import("@/features/gestor/pages/GestorPlanos"));
+const AdminDashboard = lazy(() => import("@/features/admin/pages/AdminDashboard"));
 const Transparencia = lazy(() => import("@/features/transparencia/pages/Transparencia"));
+const Settings = lazy(() => import("@/features/settings/pages/Settings"));
 const NotFound = lazy(() => import("@/layouts/NotFound"));
 
 const PageLoader = () => (
@@ -32,7 +34,9 @@ const App = () => (
           <Route path="/app" element={<CitizenApp />} />
           <Route path="/gestor" element={<GestorDashboard />} />
           <Route path="/gestor/planos" element={<GestorPlanos />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/transparencia" element={<Transparencia />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>

@@ -1,8 +1,8 @@
 import { useState, lazy, Suspense } from "react";
-import { Loader2, Shield, MapPin, Cpu } from "lucide-react";
-import { useNavigate, Link } from "react-router-dom";
+import { Loader2, Shield, MapPin } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import {
-  useProblemsByCityQuery,
+  useProblems,
   useUpdateStatus,
   useTogglePublic,
   useUpdateMedia,
@@ -16,27 +16,27 @@ import { toast } from "sonner";
 import { KpiSkeleton, TableSkeleton } from "@/shared/components/ui/SkeletonLoaders";
 
 // Import subcomponents
-import { GestorHeader } from "../components/GestorHeader";
-import { KpiCards } from "../components/KpiCards";
-import { HeatmapMock } from "../components/HeatmapMock";
-import { PriorityList } from "../components/PriorityList";
-import { ProblemsTable } from "../components/ProblemsTable";
+import { AdminHeader } from "../components/AdminHeader";
+import { KpiCards } from "@/features/gestor/components/KpiCards";
+import { ProblemsTable } from "@/features/gestor/components/ProblemsTable";
 
 // Importação lazy do modal para otimização de performance
-const ProblemDetailsModal = lazy(() => import("../components/ProblemDetailsModal"));
+const ProblemDetailsModal = lazy(() => import("@/features/gestor/components/ProblemDetailsModal"));
 
-const GestorDashboard = () => {
-  const { user, profile, roles, isManager, loading, signOut } = useAuth();
+const AdminDashboard = () => {
+  const { user, roles, loading, signOut } = useAuth();
   const navigate = useNavigate();
-  const managerCity = profile?.city || "";
-  const isAdmin = roles.includes("admin");
-  const { data: problems = [], isLoading } = useProblemsByCityQuery(managerCity);
+
+  // Admin busca todos os problemas (sem filtro de cidade)
+  const { data: problems = [], isLoading } = useProblems();
   const updateStatus = useUpdateStatus();
   const togglePublic = useTogglePublic();
   const updateMedia = useUpdateMedia();
   const [selectedProblem, setSelectedProblem] = useState<Problem | null>(null);
   const [uploadingBefore, setUploadingBefore] = useState(false);
   const [uploadingAfter, setUploadingAfter] = useState(false);
+
+  const isAdmin = roles.includes("admin");
 
   if (loading) {
     return (
@@ -52,7 +52,7 @@ const GestorDashboard = () => {
         <div className="glass-card rounded-3xl p-8 max-w-sm text-center shadow-elegant">
           <Shield className="w-10 h-10 mx-auto text-accent mb-3" />
           <h2 className="font-display font-bold text-xl text-foreground">Acesso restrito</h2>
-          <p className="text-sm text-muted-foreground mt-2">Faça login para acessar o painel do gestor.</p>
+          <p className="text-sm text-muted-foreground mt-2">Faça login para acessar o painel do admin.</p>
           <Button onClick={() => navigate("/auth")} className="mt-5 w-full bg-gradient-accent text-accent-foreground font-bold">
             Entrar
           </Button>
@@ -61,14 +61,14 @@ const GestorDashboard = () => {
     );
   }
 
-  if (!isManager) {
+  if (!isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-mesh p-4">
         <div className="glass-card rounded-3xl p-8 max-w-md text-center shadow-elegant">
           <Shield className="w-10 h-10 mx-auto text-severity-high mb-3" />
           <h2 className="font-display font-bold text-xl text-foreground">Permissão necessária</h2>
           <p className="text-sm text-muted-foreground mt-2">
-            Esta área é exclusiva para gestores municipais. Solicite acesso ao administrador da plataforma.
+            Esta área é exclusiva para administradores. Solicite acesso ao administrador da plataforma.
           </p>
           <Button onClick={() => navigate("/app")} variant="outline" className="mt-5">
             Voltar ao app
@@ -77,6 +77,27 @@ const GestorDashboard = () => {
       </div>
     );
   }
+
+  // Calcular estatísticas globais
+  const totalProblems = problems.length;
+  const pending = problems.filter((p) => p.status === "pending").length;
+  const inProgress = problems.filter((p) => p.status === "in_progress").length;
+  const resolved = problems.filter((p) => p.status === "resolved").length;
+  const avgUpvotes = totalProblems > 0 ? Math.round(problems.reduce((s, p) => s + p.upvotes, 0) / totalProblems) : 0;
+
+  // Agrupar problemas por cidade para显示
+  const problemsByCity: Record<string, Problem[]> = {};
+  problems.forEach((p) => {
+    const cityMatch = p.address.match(/- ([^,]+)$/);
+    const city = cityMatch ? cityMatch[1].trim() : "Outra";
+    if (!problemsByCity[city]) problemsByCity[city] = [];
+    problemsByCity[city].push(p);
+  });
+
+  // Pegar os 5 últimos reportes
+  const latestProblems = [...problems]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 5);
 
   const handleStatusChange = (id: string, newStatus: Status) => {
     updateStatus.mutate({ id, status: newStatus });
@@ -124,20 +145,9 @@ const GestorDashboard = () => {
     }
   };
 
-  const totalProblems = problems.length;
-  const pending = problems.filter((p) => p.status === "pending").length;
-  const inProgress = problems.filter((p) => p.status === "in_progress").length;
-  const resolved = problems.filter((p) => p.status === "resolved").length;
-  const avgUpvotes = totalProblems > 0 ? Math.round(problems.reduce((s, p) => s + p.upvotes, 0) / totalProblems) : 0;
-
-  // Pegar os 5 últimos reportes
-  const latestProblems = [...problems]
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 5);
-
   return (
     <div className="min-h-screen bg-background">
-      <GestorHeader signOut={signOut} isAdmin={isAdmin} />
+      <AdminHeader signOut={signOut} />
 
       {isLoading ? (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
@@ -146,45 +156,74 @@ const GestorDashboard = () => {
         </div>
       ) : (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+          {/* KPIs Globais */}
           <KpiCards pending={pending} inProgress={inProgress} resolved={resolved} avgUpvotes={avgUpvotes} />
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <HeatmapMock />
-            <PriorityList problems={problems} onSelectProblem={setSelectedProblem} />
+          {/* Resumo por Cidade */}
+          <div className="glass-card rounded-xl p-5">
+            <h3 className="font-display font-semibold text-foreground mb-4 flex items-center gap-2">
+              <MapPin className="w-4 h-4" />
+              Problemas por Cidade
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {Object.entries(problemsByCity)
+                .sort((a, b) => b[1].length - a[1].length)
+                .map(([city, cityProblems]) => {
+                  const cityResolved = cityProblems.filter((p) => p.status === "resolved").length;
+                  const cityPending = cityProblems.filter((p) => p.status === "pending").length;
+                  const resolutionRate = cityProblems.length > 0 ? Math.round((cityResolved / cityProblems.length) * 100) : 0;
+
+                  return (
+                    <div
+                      key={city}
+                      className="p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
+                      onClick={() => navigate(`/gestor?city=${encodeURIComponent(city)}`)}
+                    >
+                      <p className="text-sm font-semibold text-foreground truncate">{city}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {cityProblems.length} problemas • {cityResolved} resolvidos
+                      </p>
+                      <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-severity-low transition-all"
+                          style={{ width: `${resolutionRate}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
           </div>
 
           {/* Últimos Reportes */}
           <div className="glass-card rounded-xl p-5">
             <h3 className="font-display font-semibold text-foreground mb-4">Últimos Reportes</h3>
-            {latestProblems.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">Nenhum reporte encontrado</p>
-            ) : (
-              <div className="space-y-2">
-                {latestProblems.map((problem) => (
-                  <div
-                    key={problem.id}
-                    className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
-                    onClick={() => setSelectedProblem(problem)}
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{problem.title}</p>
-                      <p className="text-xs text-muted-foreground flex items-center gap-1">
-                        <MapPin className="w-3 h-3" /> {problem.address}
-                      </p>
-                    </div>
-                    <span className={`text-[10px] font-bold px-2 py-1 rounded-full ml-2 ${
-                      problem.status === "resolved" ? "bg-severity-low/20 text-severity-low" :
-                      problem.status === "in_progress" ? "bg-severity-medium/20 text-severity-medium" :
-                      "bg-severity-high/20 text-severity-high"
-                    }`}>
-                      {problem.status === "resolved" ? "Resolvido" : problem.status === "in_progress" ? "Em Andamento" : "Pendente"}
-                    </span>
+            <div className="space-y-2">
+              {latestProblems.map((problem) => (
+                <div
+                  key={problem.id}
+                  className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
+                  onClick={() => setSelectedProblem(problem)}
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{problem.title}</p>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <MapPin className="w-3 h-3" /> {problem.address}
+                    </p>
                   </div>
-                ))}
-              </div>
-            )}
+                  <span className={`text-[10px] font-bold px-2 py-1 rounded-full ml-2 ${
+                    problem.status === "resolved" ? "bg-severity-low/20 text-severity-low" :
+                    problem.status === "in_progress" ? "bg-severity-medium/20 text-severity-medium" :
+                    "bg-severity-high/20 text-severity-high"
+                  }`}>
+                    {problem.status === "resolved" ? "Resolvido" : problem.status === "in_progress" ? "Em Andamento" : "Pendente"}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
 
+          {/* Tabela de Problemas */}
           <ProblemsTable
             problems={problems}
             onSelectProblem={setSelectedProblem}
@@ -212,4 +251,4 @@ const GestorDashboard = () => {
   );
 };
 
-export default GestorDashboard;
+export default AdminDashboard;

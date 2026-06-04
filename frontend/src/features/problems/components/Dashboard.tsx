@@ -1,19 +1,117 @@
-import { TrendingUp, AlertCircle, CheckCircle2, Clock, Users } from "lucide-react";
+import { TrendingUp, AlertCircle, CheckCircle2, Clock, Users, FileText, MapPin } from "lucide-react";
 import { Problem } from "@/features/problems/hooks/useProblems";
 import { categoryConfig } from "@/features/problems/config/problems";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 interface DashboardProps {
   problems: Problem[];
 }
 
 const Dashboard = ({ problems }: DashboardProps) => {
+  const { user, profile, roles, isManager } = useAuth();
+  const isAdmin = roles.includes("admin");
+
+  const myProblems = user ? problems.filter((p) => p.userId === user.id) : [];
   const totalReported = problems.length;
   const resolved = problems.filter((p) => p.status === "resolved").length;
   const inProgress = problems.filter((p) => p.status === "in_progress").length;
+  const pending = problems.filter((p) => p.status === "pending").length;
   const resolutionRate = totalReported > 0 ? Math.round((resolved / totalReported) * 100) : 0;
 
+  // Dashboard do Cidadão
+  if (!isManager && !isAdmin) {
+    const myResolved = myProblems.filter((p) => p.status === "resolved").length;
+    const myInProgress = myProblems.filter((p) => p.status === "in_progress").length;
+    const myPending = myProblems.filter((p) => p.status === "pending").length;
+
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2 className="font-display text-xl font-bold text-foreground flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-accent" />
+            Painel da Comunidade
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Acompanhe os problemas da sua cidade {profile?.city ? `(${profile.city})` : ""}
+          </p>
+        </div>
+
+        {/* Estatísticas da cidade */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="glass-card rounded-lg p-4 animate-slide-up">
+            <div className="inline-flex p-2 rounded-lg bg-severity-high/10 mb-2">
+              <AlertCircle className="w-4 h-4 text-severity-high" />
+            </div>
+            <p className="text-2xl font-display font-bold text-foreground">{pending}</p>
+            <p className="text-xs font-semibold text-foreground mt-0.5">Pendentes</p>
+          </div>
+          <div className="glass-card rounded-lg p-4 animate-slide-up">
+            <div className="inline-flex p-2 rounded-lg bg-severity-low/10 mb-2">
+              <CheckCircle2 className="w-4 h-4 text-severity-low" />
+            </div>
+            <p className="text-2xl font-display font-bold text-foreground">{resolved}</p>
+            <p className="text-xs font-semibold text-foreground mt-0.5">Resolvidos</p>
+          </div>
+          <div className="glass-card rounded-lg p-4 animate-slide-up">
+            <div className="inline-flex p-2 rounded-lg bg-severity-medium/10 mb-2">
+              <Clock className="w-4 h-4 text-severity-medium" />
+            </div>
+            <p className="text-2xl font-display font-bold text-foreground">{inProgress}</p>
+            <p className="text-xs font-semibold text-foreground mt-0.5">Em Andamento</p>
+          </div>
+          <div className="glass-card rounded-lg p-4 animate-slide-up">
+            <div className="inline-flex p-2 rounded-lg bg-accent/10 mb-2">
+              <Users className="w-4 h-4 text-accent" />
+            </div>
+            <p className="text-2xl font-display font-bold text-foreground">{problems.reduce((s, p) => s + p.upvotes, 0)}</p>
+            <p className="text-xs font-semibold text-foreground mt-0.5">Total de Apoios</p>
+          </div>
+        </div>
+
+        {/* Meus Reportes */}
+        <div className="glass-card rounded-lg p-4">
+          <h3 className="font-display font-semibold text-sm text-foreground mb-4 flex items-center gap-2">
+            <FileText className="w-4 h-4" />
+            Meus Reportes
+          </h3>
+          {myProblems.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              Você ainda não criou nenhum reporte.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {myProblems.slice(0, 5).map((p) => (
+                <div key={p.id} className="flex items-center justify-between p-2 rounded-lg bg-muted/50">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{p.title}</p>
+                    <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                      <MapPin className="w-3 h-3" /> {p.address}
+                    </p>
+                  </div>
+                  <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${
+                    p.status === "resolved" ? "bg-severity-low/20 text-severity-low" :
+                    p.status === "in_progress" ? "bg-severity-medium/20 text-severity-medium" :
+                    "bg-severity-high/20 text-severity-high"
+                  }`}>
+                    {p.status === "resolved" ? "Resolvido" : p.status === "in_progress" ? "Em Andamento" : "Pendente"}
+                  </span>
+                </div>
+              ))}
+              {myProblems.length > 5 && (
+                <p className="text-xs text-muted-foreground text-center pt-2">
+                  +{myProblems.length - 5} reportes anteriores
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Dashboard do Gestor ou Admin
   const stats = [
-    { label: "Total Reportados", value: totalReported, icon: AlertCircle, change: `${problems.filter(p => p.status === "pending").length} pendentes`, color: "text-severity-high", bg: "bg-severity-high/10" },
+    { label: "Total Reportados", value: totalReported, icon: AlertCircle, change: `${pending} pendentes`, color: "text-severity-high", bg: "bg-severity-high/10" },
     { label: "Resolvidos", value: resolved, icon: CheckCircle2, change: `${resolutionRate}% taxa de resolução`, color: "text-severity-low", bg: "bg-severity-low/10" },
     { label: "Em Andamento", value: inProgress, icon: Clock, change: totalReported > 0 ? `${Math.round((inProgress / totalReported) * 100)}% do total` : "0%", color: "text-severity-medium", bg: "bg-severity-medium/10" },
     { label: "Total de Apoios", value: problems.reduce((s, p) => s + p.upvotes, 0), icon: Users, change: "votos da comunidade", color: "text-accent", bg: "bg-accent/10" },
@@ -48,9 +146,11 @@ const Dashboard = ({ problems }: DashboardProps) => {
       <div>
         <h2 className="font-display text-xl font-bold text-foreground flex items-center gap-2">
           <TrendingUp className="w-5 h-5 text-accent" />
-          Painel de Transparência
+          {isAdmin ? "Painel Global" : `Painel - ${profile?.city || "Município"}`}
         </h2>
-        <p className="text-sm text-muted-foreground mt-1">Acompanhe o progresso da sua comunidade em tempo real</p>
+        <p className="text-sm text-muted-foreground mt-1">
+          {isAdmin ? "Visão geral de todas as cidades" : "Acompanhe o progresso da sua cidade"}
+        </p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">

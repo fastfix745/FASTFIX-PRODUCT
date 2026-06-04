@@ -5,6 +5,8 @@ interface LocationStepProps {
   coords: { lat: number; lng: number } | null;
   address: string;
   setAddress: (address: string) => void;
+  city: string;
+  setCity: (city: string) => void;
   onRetryLocate: () => void;
 }
 
@@ -13,6 +15,8 @@ export const LocationStep = ({
   coords,
   address,
   setAddress,
+  city,
+  setCity,
   onRetryLocate,
 }: LocationStepProps) => {
   return (
@@ -25,7 +29,7 @@ export const LocationStep = ({
         )}
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-foreground">
-            {locating ? "Detectando sua localização..." : coords ? "Localização detectada" : "Localização indisponível"}
+            {locating ? "Detectando sua localização..." : coords ? "Localização detectada" : "Localização manual"}
           </p>
           {coords && (
             <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -36,12 +40,23 @@ export const LocationStep = ({
       </div>
       <div>
         <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+          Cidade
+        </label>
+        <input
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          placeholder="Ex: Fortaleza"
+          className="w-full mt-1.5 px-4 py-3 rounded-xl border border-border bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/40"
+        />
+      </div>
+      <div>
+        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
           Endereço de referência
         </label>
         <input
           value={address}
           onChange={(e) => setAddress(e.target.value)}
-          placeholder="Ex: Av. Beira Mar, 120 - Meireles, Fortaleza"
+          placeholder="Ex: Av. Beira Mar, 120 - Meireles"
           className="w-full mt-1.5 px-4 py-3 rounded-xl border border-border bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/40"
         />
       </div>
@@ -51,7 +66,7 @@ export const LocationStep = ({
           onClick={onRetryLocate}
           className="text-xs text-accent font-semibold hover:underline"
         >
-          Tentar detectar novamente
+          Tentar detectar localização
         </button>
       )}
     </div>

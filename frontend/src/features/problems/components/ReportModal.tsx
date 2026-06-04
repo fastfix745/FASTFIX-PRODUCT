@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { X, Loader2, ChevronRight, ChevronLeft } from "lucide-react";
 import { ProblemCategory, Severity } from "@/features/problems/config/problems";
 import { useCreateProblem, uploadProblemMedia } from "@/features/problems/hooks/useProblems";
@@ -29,6 +29,7 @@ const ReportModal = ({ isOpen, onClose }: ReportModalProps) => {
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
   const [coords, setCoords] = useState<Coords>(null);
   const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
   const [locating, setLocating] = useState(false);
   const [category, setCategory] = useState<ProblemCategory | null>(null);
   const [severity, setSeverity] = useState<Severity>("medium");
@@ -39,24 +40,6 @@ const ReportModal = ({ isOpen, onClose }: ReportModalProps) => {
 
   const createProblem = useCreateProblem();
 
-  // Auto-detect location when reaching step 1
-  useEffect(() => {
-    if (step !== 1 || coords || locating) return;
-    if (!navigator.geolocation) return;
-    setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        setLocating(false);
-      },
-      () => {
-        setLocating(false);
-        toast.error("Não foi possível detectar localização", { description: "Informe o endereço manualmente." });
-      },
-      { enableHighAccuracy: true, timeout: 8000 }
-    );
-  }, [step, coords, locating]);
-
   if (!isOpen) return null;
 
   const reset = () => {
@@ -65,6 +48,7 @@ const ReportModal = ({ isOpen, onClose }: ReportModalProps) => {
     setPhotoFiles([]);
     setCoords(null);
     setAddress("");
+    setCity("");
     setCategory(null);
     setSeverity("medium");
     setTitle("");
@@ -90,7 +74,7 @@ const ReportModal = ({ isOpen, onClose }: ReportModalProps) => {
   };
 
   const handleSubmit = async () => {
-    if (!category || !title || !address || !coords) return;
+    if (!category || !title || !address || !city) return;
     try {
       let imageUrl: string | null = null;
       if (user && photoFiles[0]) {
@@ -106,24 +90,25 @@ const ReportModal = ({ isOpen, onClose }: ReportModalProps) => {
         category,
         severity,
         address,
-        lat: coords.lat,
-        lng: coords.lng,
+        lat: coords?.lat ?? 0,
+        lng: coords?.lng ?? 0,
         reporterName: reporterName || profile?.display_name || "Cidadão",
         imageUrl: imageUrl ?? photos[0] ?? null,
-        city: profile?.city,
+        city: city,
       });
       setSubmitted(true);
       toast.success("Reporte enviado com sucesso", { description: "Sua ocorrência foi registrada e está em análise." });
       setTimeout(close, 1800);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Tente novamente.";
+      console.error("Erro no reporte:", e);
       toast.error("Erro ao enviar reporte", { description: msg });
     }
   };
 
   const canNext = [
     true, // photo step optional
-    !!coords && address.length > 3,
+    address.length > 3 && city.length > 0,
     !!category,
     !!title,
   ];
@@ -171,6 +156,8 @@ const ReportModal = ({ isOpen, onClose }: ReportModalProps) => {
                 coords={coords}
                 address={address}
                 setAddress={setAddress}
+                city={city}
+                setCity={setCity}
                 onRetryLocate={() => {
                   setCoords(null);
                   setLocating(false);

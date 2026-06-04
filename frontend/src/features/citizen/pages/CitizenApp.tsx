@@ -1,12 +1,13 @@
 import { useState, lazy, Suspense } from "react";
-import { Map as MapIcon, BarChart3, List, Plus, Shield, ArrowLeft, LogIn, LogOut } from "lucide-react";
+import { Map as MapIcon, BarChart3, List, Plus, Shield, ArrowLeft, LogIn, LogOut, Sun, Moon, Settings, Cpu } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useProblems, useToggleUpvote, Problem } from "@/features/problems/hooks/useProblems";
+import { useProblemsByUserCityQuery, useToggleUpvote, Problem } from "@/features/problems/hooks/useProblems";
 import MapView from "@/features/problems/components/MapView";
 import ProblemCard from "@/features/problems/components/ProblemCard";
 import Dashboard from "@/features/problems/components/Dashboard";
 import { toast } from "sonner";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useTheme } from "@/features/theme/ThemeProvider";
 import { ProblemListSkeleton } from "@/shared/components/ui/SkeletonLoaders";
 
 // Importações lazy para otimização de bundle/carregamento
@@ -16,13 +17,15 @@ const CitizenProblemDetailModal = lazy(() => import("../components/CitizenProble
 type Tab = "map" | "list" | "dashboard";
 
 const CitizenApp = () => {
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, roles, signOut } = useAuth();
+  const isAdmin = roles.includes("admin");
+  const { theme, toggleTheme } = useTheme();
   const [activeTab, setActiveTab] = useState<Tab>("map");
   const [reportOpen, setReportOpen] = useState(false);
   const [selectedProblem, setSelectedProblem] = useState<Problem | null>(null);
   const [detailProblem, setDetailProblem] = useState<Problem | null>(null);
 
-  const { data: problems = [], isLoading } = useProblems();
+  const { data: problems = [], isLoading } = useProblemsByUserCityQuery();
   const toggleUpvote = useToggleUpvote();
 
   const handleUpvote = (id: string) => {
@@ -66,6 +69,15 @@ const CitizenApp = () => {
             <span className="hidden sm:inline text-[11px] opacity-90 px-2">{profile?.city}</span>
           )}
 
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg hover:bg-primary-foreground/10"
+            aria-label={theme === "dark" ? "Modo claro" : "Modo escuro"}
+            title={theme === "dark" ? "Modo claro" : "Modo escuro"}
+          >
+            {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </button>
+
           {user ? (
             <button
               onClick={() => signOut()}
@@ -85,6 +97,15 @@ const CitizenApp = () => {
               <span className="hidden sm:inline">Entrar</span>
             </Link>
           )}
+          {user && (
+            <Link
+              to="/settings"
+              className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-primary-foreground/10 hover:bg-primary-foreground/20 transition-colors"
+              title="Configurações"
+            >
+              <Settings className="w-3.5 h-3.5" />
+            </Link>
+          )}
           <Link
             to="/gestor"
             className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-primary-foreground/10 hover:bg-primary-foreground/20 transition-colors"
@@ -93,6 +114,16 @@ const CitizenApp = () => {
             <Shield className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Gestor</span>
           </Link>
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-accent text-accent-foreground hover:opacity-90 transition-opacity"
+              title="Painel Admin"
+            >
+              <Cpu className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Admin</span>
+            </Link>
+          )}
         </div>
       </header>
 
@@ -105,7 +136,7 @@ const CitizenApp = () => {
 
         {!isLoading && activeTab === "map" && (
           <div className="h-full relative">
-            <MapView problems={problems} onSelectProblem={setSelectedProblem} centerCity={profile?.city} />
+            <MapView problems={problems} onSelectProblem={setSelectedProblem} centerCity={profile?.city || "Fortaleza"} />
             {selectedProblem && (
               <div className="absolute bottom-24 left-4 right-4 z-20 animate-fade-in-up sm:right-24">
                 <div className="relative">

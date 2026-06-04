@@ -15,9 +15,13 @@ import {
   Brain,
   TrendingUp,
   Calendar,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useProblems } from "@/features/problems/hooks/useProblems";
+import type { Problem } from "@/types/problem";
 import { Button } from "@/shared/components/ui/button";
+import { useTheme } from "@/features/theme/ThemeProvider";
 
 // Importações dos novos subcomponentes memoizados
 import { Stat } from "../components/Stat";
@@ -27,7 +31,9 @@ import { SolutionCard } from "../components/SolutionCard";
 import { LiveStat } from "../components/LiveStat";
 
 const Landing = () => {
-  const { data: problems = [] } = useProblems();
+  const { data } = useProblems();
+  const problems = (data ?? []) as Problem[];
+  const { theme, toggleTheme } = useTheme();
   const total = problems.length;
   const resolved = problems.filter((p) => p.status === "resolved").length;
   const inProgress = problems.filter((p) => p.status === "in_progress").length;
@@ -55,6 +61,14 @@ const Landing = () => {
             <a href="#contato" className="hover:text-foreground transition-colors">Contato</a>
           </nav>
           <div className="flex items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg hover:bg-muted transition-colors"
+              aria-label={theme === "dark" ? "Modo claro" : "Modo escuro"}
+              title={theme === "dark" ? "Modo claro" : "Modo escuro"}
+            >
+              {theme === "dark" ? <Sun className="w-4 h-4 text-foreground" /> : <Moon className="w-4 h-4 text-foreground" />}
+            </button>
             <Link
               to="/app"
               className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg text-foreground hover:bg-muted transition-colors"
@@ -262,7 +276,7 @@ const Landing = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center mt-8">
                 <Button asChild size="lg" className="bg-accent text-accent-foreground font-bold h-12 px-6 hover:opacity-95">
-                  <a href="mailto:contato@fastfix.gov.br">
+                  <a href="mailto:Fastfix745@gmail.com">
                     Agendar Demonstração <ArrowRight className="ml-2 w-4 h-4" />
                   </a>
                 </Button>

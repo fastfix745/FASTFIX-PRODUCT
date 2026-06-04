@@ -1,11 +1,21 @@
 import { supabase } from "@/services/supabase/client";
 import type { NewProblemInput, Problem, ProblemStatus } from "@/types/problem";
 
-export async function fetchProblems(): Promise<Problem[]> {
-  const { data: problems, error } = await supabase
-    .from("problems")
-    .select("*")
-    .order("created_at", { ascending: false });
+const normalizeCity = (city: string) => city.trim().toLowerCase();
+
+export async function fetchProblems(city?: string): Promise<Problem[]> {
+  let query = supabase.from("problems").select("*").order("created_at", { ascending: false });
+
+  // Só filtra se city for uma string válida (não objeto, não vazio)
+  if (city && typeof city === "string" && city.trim().length > 0) {
+    const normalizedCity = normalizeCity(city);
+    console.log("Filtrando problemas pela cidade:", normalizedCity);
+    query = query.eq("city", normalizedCity);
+  } else {
+    console.log("Buscando todos os problemas (sem filtro de cidade)");
+  }
+
+  const { data: problems, error } = await query;
   if (error) throw error;
 
   const { data: upvoteCounts } = await supabase.from("problem_upvotes").select("problem_id");
@@ -91,9 +101,12 @@ export async function createProblem(input: NewProblemInput) {
     reporter_name: input.reporterName,
     image_url: input.imageUrl ?? null,
     user_id: user?.id ?? null,
-    ...(input.city ? { city: input.city } : {}),
+    ...(input.city ? { city: normalizeCity(input.city) } : {}),
   }).select().single();
-  if (error) throw error;
+  if (error) {
+    console.error("Erro ao criar problema:", error);
+    throw error;
+  }
   return data;
 }
 

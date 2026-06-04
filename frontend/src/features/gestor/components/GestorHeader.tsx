@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom";
-import { Shield, Eye, LogOut } from "lucide-react";
+import { Shield, Eye, LogOut, Settings, Cpu } from "lucide-react";
 import NotificationBell from "@/features/notifications/components/NotificationBell";
 
 interface GestorHeaderProps {
   signOut: () => void;
+  isAdmin?: boolean;
 }
 
-export const GestorHeader = ({ signOut }: GestorHeaderProps) => {
+export const GestorHeader = ({ signOut, isAdmin }: GestorHeaderProps) => {
   return (
     <header className="bg-primary text-primary-foreground px-6 py-3 flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -20,11 +21,26 @@ export const GestorHeader = ({ signOut }: GestorHeaderProps) => {
       </div>
       <div className="flex items-center gap-3">
         <NotificationBell />
+        {isAdmin && (
+          <Link
+            to="/admin"
+            className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-accent text-accent-foreground hover:opacity-90 transition-opacity"
+          >
+            <Cpu className="w-3.5 h-3.5" /> Admin
+          </Link>
+        )}
         <Link
           to="/app"
           className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-primary-foreground/10 hover:bg-primary-foreground/20 transition-colors"
         >
           <Eye className="w-3.5 h-3.5" /> Visão Cidadão
+        </Link>
+        <Link
+          to="/settings"
+          className="p-2 rounded-lg hover:bg-primary-foreground/10"
+          aria-label="Configurações"
+        >
+          <Settings className="w-4 h-4" />
         </Link>
         <button
           onClick={signOut}

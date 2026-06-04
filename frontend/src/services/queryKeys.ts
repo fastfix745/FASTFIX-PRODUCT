@@ -1,6 +1,7 @@
 export const queryKeys = {
   problems: {
     all: ["problems"] as const,
+    byCity: (city: string) => ["problems", "city", city] as const,
   },
   severityVotes: {
     all: ["severity-votes"] as const,

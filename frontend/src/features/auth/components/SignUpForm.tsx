@@ -1,7 +1,6 @@
 import React, { useState, memo } from "react";
-import { Loader2, Locate, CheckCircle2 } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
-import { useCityDetection } from "@/features/auth/hooks/useCityDetection";
 import { toast } from "sonner";
 
 interface SignUpFormProps {
@@ -12,12 +11,13 @@ interface SignUpFormProps {
 export const SignUpForm = memo(({ loading, onSubmit }: SignUpFormProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [displayName, setDisplayName] = useState("");
-  const { city, detectingCity, detectCity } = useCityDetection();
+  const [city, setCity] = useState("");
 
   const validate = (): string | null => {
     if (!displayName.trim() || displayName.trim().length < 2) return "Informe seu nome.";
-    if (!city) return "Toque em Detectar via GPS para informar sua cidade.";
+    if (!city.trim()) return "Informe sua cidade.";
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return "Informe um e-mail válido.";
     if (password.length < 6) return "A senha precisa ter ao menos 6 caracteres.";
     return null;
@@ -56,30 +56,18 @@ export const SignUpForm = memo(({ loading, onSubmit }: SignUpFormProps) => {
       </div>
 
       <div>
-        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <label htmlFor="city" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
           Cidade
         </label>
-        <div className="mt-1.5 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-          <button
-            type="button"
-            onClick={detectCity}
-            disabled={detectingCity}
-            className="flex-shrink-0 inline-flex items-center justify-center gap-2 px-3 py-3 rounded-xl border border-border bg-card text-foreground text-sm hover:bg-muted transition disabled:opacity-70"
-          >
-            {detectingCity ? <Loader2 className="w-4 h-4 animate-spin" /> : <Locate className="w-4 h-4" />}
-            <span className="font-semibold">{city ? "Atualizar" : "Detectar via GPS"}</span>
-          </button>
-          <div className="flex-1 min-w-0 px-3 py-3 rounded-xl border border-border bg-muted/40 text-sm text-foreground flex items-center gap-2 truncate justify-center sm:justify-start">
-            {city ? (
-              <>
-                <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
-                <span className="truncate">{city}</span>
-              </>
-            ) : (
-              <span className="text-muted-foreground">Nenhuma localização detectada</span>
-            )}
-          </div>
-        </div>
+        <input
+          id="city"
+          required
+          autoComplete="address-level2"
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          placeholder="Ex: Fortaleza"
+          className="w-full mt-1.5 px-4 py-3 rounded-xl border border-border bg-card text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 transition"
+        />
       </div>
 
       <div>
@@ -103,17 +91,31 @@ export const SignUpForm = memo(({ loading, onSubmit }: SignUpFormProps) => {
         <label htmlFor="password" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
           Senha
         </label>
-        <input
-          id="password"
-          required
-          type="password"
-          minLength={6}
-          autoComplete="new-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="••••••••"
-          className="w-full mt-1.5 px-4 py-3 rounded-xl border border-border bg-card text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 transition"
-        />
+        <div className="relative mt-1.5">
+          <input
+            id="password"
+            required
+            type={showPassword ? "text" : "password"}
+            minLength={6}
+            autoComplete="new-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            className="w-full px-4 py-3 pr-12 rounded-xl border border-border bg-card text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 transition"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg hover:bg-muted transition-colors"
+            aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+          >
+            {showPassword ? (
+              <EyeOff className="w-4 h-4 text-muted-foreground" />
+            ) : (
+              <Eye className="w-4 h-4 text-muted-foreground" />
+            )}
+          </button>
+        </div>
       </div>
 
       <Button

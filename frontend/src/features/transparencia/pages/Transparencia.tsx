@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft, MapPin } from "lucide-react";
-import { useProblems } from "@/features/problems/hooks/useProblems";
+import { useProblemsByUserCityQuery } from "@/features/problems/hooks/useProblems";
 import BeforeAfterSlider from "@/features/problems/components/BeforeAfterSlider";
 import { categoryConfig, formatDateBR } from "@/features/problems/config/problems";
 
 const Transparencia = () => {
-  const { data: problems = [], isLoading } = useProblems();
+  const { data: problems = [], isLoading } = useProblemsByUserCityQuery();
   const publicProblems = problems.filter((p) => p.isPublic);
   const showcases = publicProblems.filter((p) => p.status === "resolved" && p.beforeImages.length > 0 && p.afterImages.length > 0);
 
