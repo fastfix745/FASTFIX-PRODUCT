@@ -49,6 +49,8 @@ export async function fetchProblems(city?: string): Promise<Problem[]> {
     imageUrl: p.image_url,
     reporterName: p.reporter_name,
     userId: p.user_id,
+    response: p.response ?? null,
+    responseCreatedAt: p.response_created_at ?? null,
   }));
 }
 
@@ -120,4 +122,12 @@ export async function uploadProblemMedia(file: File, folder: string): Promise<st
   if (error) throw error;
   const { data } = supabase.storage.from("problem-media").getPublicUrl(path);
   return data.publicUrl;
+}
+
+export async function updateProblemResponse(id: string, response: string): Promise<void> {
+  const { error } = await supabase.from("problems").update({
+    response,
+    response_created_at: new Date().toISOString(),
+  }).eq("id", id);
+  if (error) throw error;
 }

@@ -6,6 +6,7 @@ import {
   useUpdateStatus,
   useTogglePublic,
   useUpdateMedia,
+  useResponse,
   uploadProblemMedia,
   Problem,
 } from "@/features/problems/hooks/useProblems";
@@ -34,9 +35,11 @@ const GestorDashboard = () => {
   const updateStatus = useUpdateStatus();
   const togglePublic = useTogglePublic();
   const updateMedia = useUpdateMedia();
+  const sendResponse = useResponse();
   const [selectedProblem, setSelectedProblem] = useState<Problem | null>(null);
   const [uploadingBefore, setUploadingBefore] = useState(false);
   const [uploadingAfter, setUploadingAfter] = useState(false);
+  const [sendingResponse, setSendingResponse] = useState(false);
 
   if (loading) {
     return (
@@ -124,6 +127,27 @@ const GestorDashboard = () => {
     }
   };
 
+  const handleResponse = async (id: string, response: string) => {
+    setSendingResponse(true);
+    try {
+      await sendResponse.mutateAsync({ id, response });
+      setSelectedProblem((prev) =>
+        prev
+          ? {
+              ...prev,
+              response,
+              responseCreatedAt: new Date().toISOString(),
+            }
+          : null
+      );
+      toast.success("Resposta enviada ao cidadão!");
+    } catch (e) {
+      toast.error("Erro ao enviar resposta", { description: (e as Error).message });
+    } finally {
+      setSendingResponse(false);
+    }
+  };
+
   const totalProblems = problems.length;
   const pending = problems.filter((p) => p.status === "pending").length;
   const inProgress = problems.filter((p) => p.status === "in_progress").length;
@@ -203,8 +227,10 @@ const GestorDashboard = () => {
             handleStatusChange={handleStatusChange}
             handleTogglePublic={handleTogglePublic}
             handleUpload={handleUpload}
+            handleResponse={handleResponse}
             uploadingBefore={uploadingBefore}
             uploadingAfter={uploadingAfter}
+            sendingResponse={sendingResponse}
           />
         )}
       </Suspense>

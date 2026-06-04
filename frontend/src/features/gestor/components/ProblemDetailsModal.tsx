@@ -1,4 +1,5 @@
-import { MapPin, Users, Globe, Upload, Loader2, MessageSquare } from "lucide-react";
+import { useState } from "react";
+import { MapPin, Users, Globe, Upload, Loader2, MessageSquare, Send } from "lucide-react";
 import type { Problem } from "@/features/problems/hooks/useProblems";
 import type { Status } from "@/features/problems/config/problems";
 import { severityConfig, statusConfig, formatDateTimeBR } from "@/features/problems/config/problems";
@@ -12,8 +13,10 @@ interface ProblemDetailsModalProps {
   handleStatusChange: (id: string, newStatus: Status) => void;
   handleTogglePublic: (id: string, isPublic: boolean) => void;
   handleUpload: (kind: "before" | "after", files: FileList | null) => void;
+  handleResponse: (id: string, response: string) => void;
   uploadingBefore: boolean;
   uploadingAfter: boolean;
+  sendingResponse: boolean;
 }
 
 export const ProblemDetailsModal = ({
@@ -22,9 +25,19 @@ export const ProblemDetailsModal = ({
   handleStatusChange,
   handleTogglePublic,
   handleUpload,
+  handleResponse,
   uploadingBefore,
   uploadingAfter,
+  sendingResponse,
 }: ProblemDetailsModalProps) => {
+  const [responseText, setResponseText] = useState(selectedProblem.response || "");
+
+  const onSendResponse = () => {
+    if (responseText.trim()) {
+      handleResponse(selectedProblem.id, responseText.trim());
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-foreground/40 backdrop-blur-sm" onClick={onClose} />
@@ -164,13 +177,37 @@ export const ProblemDetailsModal = ({
 
           <div className="border-t border-border pt-4">
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Resposta ao Cidadão</label>
+
+            {selectedProblem.response && (
+              <div className="mt-2 p-3 rounded-lg bg-accent/10 border border-accent/20">
+                <p className="text-xs text-muted-foreground mb-1">Resposta enviada:</p>
+                <p className="text-sm text-foreground">{selectedProblem.response}</p>
+                {selectedProblem.responseCreatedAt && (
+                  <p className="text-[10px] text-muted-foreground mt-1">
+                    {formatDateTimeBR(selectedProblem.responseCreatedAt)}
+                  </p>
+                )}
+              </div>
+            )}
+
             <textarea
-              placeholder="Escreva uma atualização..."
+              placeholder="Escreva uma resposta ao cidadão..."
               rows={3}
-              className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-card text-foreground text-sm resize-none focus:outline-none focus:ring-2 focus:ring-accent/40"
+              value={responseText}
+              onChange={(e) => setResponseText(e.target.value)}
+              className="w-full mt-2 px-3 py-2.5 rounded-lg border border-border bg-card text-foreground text-sm resize-none focus:outline-none focus:ring-2 focus:ring-accent/40"
             />
-            <Button className="w-full mt-2 bg-accent text-accent-foreground hover:bg-accent/90 font-semibold text-xs transition-colors">
-              <MessageSquare className="w-3.5 h-3.5 mr-1.5" /> Enviar Resposta
+            <Button
+              onClick={onSendResponse}
+              disabled={!responseText.trim() || sendingResponse}
+              className="w-full mt-2 bg-accent text-accent-foreground hover:bg-accent/90 font-semibold text-xs transition-colors disabled:opacity-50"
+            >
+              {sendingResponse ? (
+                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+              ) : (
+                <Send className="w-3.5 h-3.5 mr-1.5" />
+              )}
+              {selectedProblem.response ? "Atualizar Resposta" : "Enviar Resposta"}
             </Button>
           </div>
         </div>

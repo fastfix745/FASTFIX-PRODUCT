@@ -24,6 +24,8 @@ export interface Problem {
   imageUrl?: string | null;
   reporterName: string;
   userId: string | null;
+  response?: string | null;
+  responseCreatedAt?: string | null;
 }
 
 export interface NewProblemInput {

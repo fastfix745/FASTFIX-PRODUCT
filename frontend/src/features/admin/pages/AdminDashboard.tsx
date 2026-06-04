@@ -6,6 +6,7 @@ import {
   useUpdateStatus,
   useTogglePublic,
   useUpdateMedia,
+  useResponse,
   uploadProblemMedia,
   Problem,
 } from "@/features/problems/hooks/useProblems";
@@ -32,9 +33,11 @@ const AdminDashboard = () => {
   const updateStatus = useUpdateStatus();
   const togglePublic = useTogglePublic();
   const updateMedia = useUpdateMedia();
+  const sendResponse = useResponse();
   const [selectedProblem, setSelectedProblem] = useState<Problem | null>(null);
   const [uploadingBefore, setUploadingBefore] = useState(false);
   const [uploadingAfter, setUploadingAfter] = useState(false);
+  const [sendingResponse, setSendingResponse] = useState(false);
 
   const isAdmin = roles.includes("admin");
 
@@ -145,6 +148,27 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleResponse = async (id: string, response: string) => {
+    setSendingResponse(true);
+    try {
+      await sendResponse.mutateAsync({ id, response });
+      setSelectedProblem((prev) =>
+        prev
+          ? {
+              ...prev,
+              response,
+              responseCreatedAt: new Date().toISOString(),
+            }
+          : null
+      );
+      toast.success("Resposta enviada ao cidadão!");
+    } catch (e) {
+      toast.error("Erro ao enviar resposta", { description: (e as Error).message });
+    } finally {
+      setSendingResponse(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <AdminHeader signOut={signOut} />
@@ -242,8 +266,10 @@ const AdminDashboard = () => {
             handleStatusChange={handleStatusChange}
             handleTogglePublic={handleTogglePublic}
             handleUpload={handleUpload}
+            handleResponse={handleResponse}
             uploadingBefore={uploadingBefore}
             uploadingAfter={uploadingAfter}
+            sendingResponse={sendingResponse}
           />
         )}
       </Suspense>

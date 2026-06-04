@@ -9,3 +9,4 @@ export { useToggleProblemPublic as useTogglePublic } from "./mutations/useToggle
 export { useUpdateProblemMedia as useUpdateMedia } from "./mutations/useUpdateProblemMedia";
 export { useToggleUpvote } from "./mutations/useToggleUpvote";
 export { useCreateProblem } from "./mutations/useCreateProblem";
+export { useUpdateProblemResponse as useResponse } from "./mutations/useUpdateProblemResponse";
