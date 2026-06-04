@@ -6,7 +6,7 @@ import {
   useUpdateStatus,
   useTogglePublic,
   useUpdateMedia,
-  useResponse,
+  useUpdateProblemResponse,
   uploadProblemMedia,
   Problem,
 } from "@/features/problems/hooks/useProblems";
