@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   User,
@@ -26,8 +26,16 @@ const Settings = () => {
   const [saving, setSaving] = useState(false);
 
   // Profile state
-  const [displayName, setDisplayName] = useState(profile?.display_name || "");
-  const [city, setCity] = useState(profile?.city || "");
+  const [displayName, setDisplayName] = useState("");
+  const [city, setCity] = useState("");
+
+  // Update state when profile is loaded
+  useEffect(() => {
+    if (profile) {
+      setDisplayName(profile.display_name || "");
+      setCity(profile.city || "");
+    }
+  }, [profile]);
 
   // Notifications state
   const [notifyStatus, setNotifyStatus] = useState(true);
