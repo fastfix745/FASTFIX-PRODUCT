@@ -1,5 +1,4 @@
 import type { SeverityLevel } from "@/types/severity";
-
 export const severityConfig: Record<SeverityLevel, { label: string; classes: string; activeClasses: string; dot: string }> = {
   low: {
     label: "Baixa",
@@ -9,15 +8,15 @@ export const severityConfig: Record<SeverityLevel, { label: string; classes: str
   },
   medium: {
     label: "Média",
-    classes: "border-warning/30 text-warning hover:bg-warning/10",
-    activeClasses: "bg-warning/15 border-warning text-warning ring-2 ring-warning/40",
-    dot: "bg-warning",
+    classes: "border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/10",
+    activeClasses: "bg-yellow-500/15 border-yellow-500 text-yellow-500 ring-2 ring-yellow-500/40",
+    dot: "bg-yellow-500",
   },
   high: {
     label: "Alta",
-    classes: "border-accent/30 text-accent hover:bg-accent/10",
-    activeClasses: "bg-accent/15 border-accent text-accent ring-2 ring-accent/40",
-    dot: "bg-accent",
+    classes: "border-orange-500/30 text-orange-500 hover:bg-orange-500/10",
+    activeClasses: "bg-orange-500/15 border-orange-500 text-orange-500 ring-2 ring-orange-500/40",
+    dot: "bg-orange-500",
   },
   critical: {
     label: "Urgente",
