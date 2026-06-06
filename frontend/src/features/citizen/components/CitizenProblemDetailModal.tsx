@@ -16,14 +16,16 @@ interface CitizenProblemDetailModalProps {
 }
 
 export const CitizenProblemDetailModal = memo(({ problem, onClose }: CitizenProblemDetailModalProps) => {
-  const { user } = useAuth();
+  const { user, roles } = useAuth();
   const deleteProblem = useDeleteProblem();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   if (!problem) return null;
 
-  // Verifica se o usuário logado é o criador da denúncia
+  // Verifica se o usuário logado é o criador da denúncia ou admin
+  const isAdmin = roles.includes("admin");
   const isOwner = user?.id === problem.userId;
+  const canEdit = isOwner || isAdmin;
 
   const handleDelete = async () => {
     if (!confirm("Tem certeza que deseja excluir esta denúncia?")) return;
@@ -48,7 +50,7 @@ export const CitizenProblemDetailModal = memo(({ problem, onClose }: CitizenProb
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-display text-lg font-bold text-foreground">Detalhes da Ocorrência</h3>
           <div className="flex items-center gap-2">
-            {user && isOwner && (
+            {user && canEdit && (
               <>
                 <Button
                   variant="ghost"

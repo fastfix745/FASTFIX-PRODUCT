@@ -121,20 +121,38 @@ export async function uploadProblemMedia(file: File, folder: string): Promise<st
   return data.publicUrl;
 }
 
+export async function checkUserIsAdmin(): Promise<boolean> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return false;
+
+  const { data: roleRows } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", user.id)
+    .eq("role", "admin");
+
+  return (roleRows ?? []).length > 0;
+}
+
 export async function updateProblem(id: string, input: Partial<NewProblemInput>): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Login necessário para editar");
 
-  // Verifica se o usuário é o criador do problema
-  const { data: problem, error: fetchError } = await supabase
-    .from("problems")
-    .select("user_id")
-    .eq("id", id)
-    .single();
-  if (fetchError) throw fetchError;
+  // Verifica se o usuário é admin
+  const isAdmin = await checkUserIsAdmin();
 
-  if (problem.user_id !== user.id) {
-    throw new Error("Você só pode editar suas próprias denúncias");
+  // Se não for admin, verifica se é o criador do problema
+  if (!isAdmin) {
+    const { data: problem, error: fetchError } = await supabase
+      .from("problems")
+      .select("user_id")
+      .eq("id", id)
+      .single();
+    if (fetchError) throw fetchError;
+
+    if (problem.user_id !== user.id) {
+      throw new Error("Você só pode editar suas próprias denúncias");
+    }
   }
 
   const upd: Record<string, unknown> = {};
@@ -155,16 +173,21 @@ export async function deleteProblem(id: string): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Login necessário para excluir");
 
-  // Verifica se o usuário é o criador do problema
-  const { data: problem, error: fetchError } = await supabase
-    .from("problems")
-    .select("user_id")
-    .eq("id", id)
-    .single();
-  if (fetchError) throw fetchError;
+  // Verifica se o usuário é admin
+  const isAdmin = await checkUserIsAdmin();
 
-  if (problem.user_id !== user.id) {
-    throw new Error("Você só pode excluir suas próprias denúncias");
+  // Se não for admin, verifica se é o criador do problema
+  if (!isAdmin) {
+    const { data: problem, error: fetchError } = await supabase
+      .from("problems")
+      .select("user_id")
+      .eq("id", id)
+      .single();
+    if (fetchError) throw fetchError;
+
+    if (problem.user_id !== user.id) {
+      throw new Error("Você só pode excluir suas próprias denúncias");
+    }
   }
 
   const { error } = await supabase.from("problems").delete().eq("id", id);
