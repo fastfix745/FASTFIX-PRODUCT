@@ -1,4 +1,5 @@
-import { MapPin, Loader2 } from "lucide-react";
+import { MapPin, Loader2, Navigation } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 interface LocationStepProps {
   locating: boolean;
@@ -8,6 +9,8 @@ interface LocationStepProps {
   city: string;
   setCity: (city: string) => void;
   onRetryLocate: () => void;
+  autoLocate?: boolean;
+  onAutoLocate?: () => void;
 }
 
 export const LocationStep = ({
@@ -18,7 +21,19 @@ export const LocationStep = ({
   city,
   setCity,
   onRetryLocate,
+  autoLocate,
+  onAutoLocate,
 }: LocationStepProps) => {
+  const hasAutoLocated = useRef(false);
+
+  // Auto-detectar localização ao renderizar o componente
+  useEffect(() => {
+    if (autoLocate && !hasAutoLocated.current && !coords && !locating) {
+      hasAutoLocated.current = true;
+      onAutoLocate?.();
+    }
+  }, [autoLocate, coords, locating, onAutoLocate]);
+
   return (
     <div className="space-y-4 animate-fade-in">
       <div className="rounded-2xl bg-accent/10 border border-accent/30 p-4 flex items-start gap-3">
@@ -29,7 +44,7 @@ export const LocationStep = ({
         )}
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-foreground">
-            {locating ? "Detectando sua localização..." : coords ? "Localização detectada" : "Localização manual"}
+            {locating ? "Detectando sua localização..." : coords ? "Localização detectada" : "Localização automática"}
           </p>
           {coords && (
             <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -64,9 +79,10 @@ export const LocationStep = ({
         <button
           type="button"
           onClick={onRetryLocate}
-          className="text-xs text-accent font-semibold hover:underline"
+          className="text-xs text-accent font-semibold hover:underline flex items-center gap-1"
         >
-          Tentar detectar localização
+          <Navigation className="w-3 h-3" />
+          Detectar localização
         </button>
       )}
     </div>

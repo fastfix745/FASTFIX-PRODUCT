@@ -22,6 +22,62 @@ type Coords = { lat: number; lng: number } | null;
 
 const STEPS = ["Foto", "Local", "Categoria", "Detalhes"];
 
+// Função para fazer reverse geocoding com Nominatim
+const reverseGeocode = async (lat: number, lng: number): Promise<{ city: string; address: string }> => {
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
+      {
+        headers: {
+          "User-Agent": "FastFix/1.0",
+        },
+      }
+    );
+    const data = await response.json();
+
+    if (data.address) {
+      const city = data.address.city || data.address.town || data.address.municipality || data.address.county || "";
+      const state = data.address.state || "";
+      const road = data.address.road || "";
+      const neighbourhood = data.address.neighbourhood || "";
+
+      return {
+        city: city ? `${city}, ${state}` : city,
+        address: road || neighbourhood || "",
+      };
+    }
+  } catch (error) {
+    console.error("Erro no reverse geocoding:", error);
+  }
+  return { city: "", address: "" };
+};
+
+// Função para detectar localização
+const detectLocation = (): Promise<{ lat: number; lng: number }> => {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error("Geolocalização não suportada"));
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+      },
+      (error) => {
+        reject(error);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  });
+};
+
 const ReportModal = ({ isOpen, onClose }: ReportModalProps) => {
   const { user, profile } = useAuth();
   const [step, setStep] = useState(0);
@@ -37,6 +93,7 @@ const ReportModal = ({ isOpen, onClose }: ReportModalProps) => {
   const [description, setDescription] = useState("");
   const [reporterName, setReporterName] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [autoLocate, setAutoLocate] = useState(false);
 
   const createProblem = useCreateProblem();
 
@@ -55,6 +112,32 @@ const ReportModal = ({ isOpen, onClose }: ReportModalProps) => {
     setDescription("");
     setReporterName("");
     setSubmitted(false);
+    setAutoLocate(false);
+  };
+
+  // Função para auto-detectar localização
+  const handleAutoLocate = async () => {
+    setLocating(true);
+    try {
+      const position = await detectLocation();
+      setCoords(position);
+
+      // Reverse geocoding para obter cidade e endereço
+      const locationData = await reverseGeocode(position.lat, position.lng);
+      if (locationData.city) {
+        setCity(locationData.city);
+      }
+      if (locationData.address) {
+        setAddress(locationData.address);
+      }
+    } catch (error) {
+      console.error("Erro ao detectar localização:", error);
+      toast.error("Não foi possível detectar sua localização", {
+        description: "Por favor, insira manualmente sua cidade e endereço.",
+      });
+    } finally {
+      setLocating(false);
+    }
   };
 
   const close = () => {
@@ -113,6 +196,14 @@ const ReportModal = ({ isOpen, onClose }: ReportModalProps) => {
     !!title,
   ];
 
+  // Ativar auto-locate quando o passo de localização for aberto
+  const handleNextToLocation = () => {
+    if (step === 0) {
+      setAutoLocate(true);
+    }
+    setStep((s) => s + 1);
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center animate-fade-in">
       <div className="absolute inset-0 bg-foreground/50 backdrop-blur-sm" onClick={close} />
@@ -158,10 +249,11 @@ const ReportModal = ({ isOpen, onClose }: ReportModalProps) => {
                 setAddress={setAddress}
                 city={city}
                 setCity={setCity}
+                autoLocate={autoLocate}
+                onAutoLocate={handleAutoLocate}
                 onRetryLocate={() => {
-                  setCoords(null);
-                  setLocating(false);
-                  setStep(1);
+                  setAutoLocate(true);
+                  handleAutoLocate();
                 }}
               />
             )}
@@ -195,7 +287,7 @@ const ReportModal = ({ isOpen, onClose }: ReportModalProps) => {
               )}
               {step < STEPS.length - 1 ? (
                 <Button
-                  onClick={() => setStep((s) => s + 1)}
+                  onClick={handleNextToLocation}
                   disabled={!canNext[step]}
                   className="flex-1 bg-gradient-accent text-accent-foreground font-bold shadow-glow hover:opacity-95"
                 >
