@@ -10,7 +10,8 @@ import {
   MapPin,
   Mail,
   Eye,
-  EyeOff
+  EyeOff,
+  LogOut
 } from "lucide-react";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { supabase } from "@/services/supabase/client";
@@ -21,7 +22,7 @@ type Tab = "profile" | "notifications" | "security";
 
 const Settings = () => {
   const navigate = useNavigate();
-  const { user, profile, refreshProfile } = useAuth();
+  const { user, profile, refreshProfile, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>("profile");
   const [saving, setSaving] = useState(false);
 
@@ -308,6 +309,16 @@ const Settings = () => {
               <p className="text-xs text-muted-foreground text-center">
                 Precisa de ajuda? Entre em contato com o suporte.
               </p>
+            </div>
+
+            <div className="pt-4">
+              <Button
+                onClick={() => signOut()}
+                variant="outline"
+                className="w-full text-severity-critical border-severity-critical/30 hover:bg-severity-critical/10"
+              >
+                <LogOut className="w-4 h-4 mr-2" /> Sair da conta
+              </Button>
             </div>
           </div>
         )}
