@@ -96,15 +96,6 @@ const CitizenApp = () => {
               <span className="hidden sm:inline">Entrar</span>
             </Link>
           )}
-          {user && (
-            <Link
-              to="/settings"
-              className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-primary-foreground/10 hover:bg-primary-foreground/20 transition-colors"
-              title="Configurações"
-            >
-              <Settings className="w-3.5 h-3.5" />
-            </Link>
-          )}
           <Link
             to="/gestor"
             className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-primary-foreground/10 hover:bg-primary-foreground/20 transition-colors"
