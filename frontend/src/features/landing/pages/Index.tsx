@@ -17,6 +17,7 @@ import {
   Calendar,
   Sun,
   Moon,
+  LogIn,
 } from "lucide-react";
 import { useProblems } from "@/features/problems/hooks/useProblems";
 import type { Problem } from "@/types/problem";
@@ -74,6 +75,12 @@ const Landing = () => {
               className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg text-foreground hover:bg-muted transition-colors"
             >
               <Smartphone className="w-3.5 h-3.5" /> App Cidadão
+            </Link>
+            <Link
+              to="/auth"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-accent text-accent-foreground hover:opacity-90 transition-opacity"
+            >
+              <LogIn className="w-3.5 h-3.5" /> Entrar
             </Link>
             <Link
               to="/gestor"
