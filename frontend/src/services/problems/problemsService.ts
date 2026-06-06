@@ -1,31 +1,80 @@
 import { supabase } from "@/services/supabase/client";
-import type { NewProblemInput, Problem, ProblemStatus } from "@/types/problem";
+import type { NewProblemInput, Problem, ProblemStatus } from "@/types/auth";
+
+// Busca informações do usuário atual
+async function getCurrentUserInfo() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { userId: null, roles: [] as string[] };
+
+  const { data: roleRows } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", user.id);
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("city")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  return {
+    userId: user.id,
+    roles: (roleRows ?? []).map((r) => r.role),
+    userCity: profile?.city,
+  };
+}
 
 export async function fetchProblems(city?: string): Promise<Problem[]> {
+  // Busca informações do usuário atual
+  const { userId, roles, userCity } = await getCurrentUserInfo();
+
+  const isAdmin = roles.includes("admin");
+  const isManager = roles.includes("manager");
+
+  // Admin e gestores veem todos os problemas
+  // Cidadãos veem apenas problemas públicos ou da mesma cidade
   let query = supabase
     .from("problems")
     .select("*")
     .order("created_at", { ascending: false });
 
-  if (city) {
-    query = query.eq("city", city);
-  }
-
   const { data: problems, error } = await query;
   if (error) throw error;
+
+  // Filtrar problemas no cliente
+  let filteredProblems = problems || [];
+
+  // Se não for admin/gestor, filtra por cidade ou visibilidade pública
+  if (!isAdmin && !isManager) {
+    filteredProblems = filteredProblems.filter((p) => {
+      // Problemas públicos aparecem para todos
+      if (p.is_public) return true;
+      // Problemas privados apenas se for da mesma cidade
+      return p.city === userCity;
+    });
+  }
+
+  // Se for gestor (não admin), também filtra pela cidade dele
+  // (mas já viu todos acima, então agora restringe)
+  if (isManager && !isAdmin && city) {
+    filteredProblems = filteredProblems.filter((p) => {
+      // Gestor vê problemas públicos de qualquer cidade + problemas da cidade dele
+      if (p.is_public) return true;
+      return p.city === city;
+    });
+  }
 
   const { data: upvoteCounts } = await supabase.from("problem_upvotes").select("problem_id");
   const countMap: Record<string, number> = {};
   upvoteCounts?.forEach((u) => { countMap[u.problem_id] = (countMap[u.problem_id] || 0) + 1; });
 
-  const { data: { user } } = await supabase.auth.getUser();
   const userUpvotes = new Set<string>();
-  if (user) {
-    const { data: my } = await supabase.from("problem_upvotes").select("problem_id").eq("user_id", user.id);
+  if (userId) {
+    const { data: my } = await supabase.from("problem_upvotes").select("problem_id").eq("user_id", userId);
     my?.forEach((u) => userUpvotes.add(u.problem_id));
   }
 
-  return (problems || []).map((p) => ({
+  return filteredProblems.map((p) => ({
     id: p.id,
     title: p.title,
     description: p.description,
