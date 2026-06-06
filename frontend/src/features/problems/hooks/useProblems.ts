@@ -10,4 +10,5 @@ export { useUpdateProblemMedia as useUpdateMedia } from "./mutations/useUpdatePr
 export { useToggleUpvote } from "./mutations/useToggleUpvote";
 export { useCreateProblem } from "./mutations/useCreateProblem";
 export { useUpdateProblemResponse } from "./mutations/useUpdateProblemResponse";
+export { useDeleteProblem } from "./mutations/useDeleteProblem";
 

@@ -120,3 +120,23 @@ export async function uploadProblemMedia(file: File, folder: string): Promise<st
   const { data } = supabase.storage.from("problem-media").getPublicUrl(path);
   return data.publicUrl;
 }
+
+export async function deleteProblem(id: string): Promise<void> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Login necessário para excluir");
+
+  // Verifica se o usuário é o criador do problema
+  const { data: problem, error: fetchError } = await supabase
+    .from("problems")
+    .select("user_id")
+    .eq("id", id)
+    .single();
+  if (fetchError) throw fetchError;
+
+  if (problem.user_id !== user.id) {
+    throw new Error("Você só pode excluir suas próprias denúncias");
+  }
+
+  const { error } = await supabase.from("problems").delete().eq("id", id);
+  if (error) throw error;
+}
