@@ -121,6 +121,36 @@ export async function uploadProblemMedia(file: File, folder: string): Promise<st
   return data.publicUrl;
 }
 
+export async function updateProblem(id: string, input: Partial<NewProblemInput>): Promise<void> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Login necessário para editar");
+
+  // Verifica se o usuário é o criador do problema
+  const { data: problem, error: fetchError } = await supabase
+    .from("problems")
+    .select("user_id")
+    .eq("id", id)
+    .single();
+  if (fetchError) throw fetchError;
+
+  if (problem.user_id !== user.id) {
+    throw new Error("Você só pode editar suas próprias denúncias");
+  }
+
+  const upd: Record<string, unknown> = {};
+  if (input.title !== undefined) upd.title = input.title;
+  if (input.description !== undefined) upd.description = input.description;
+  if (input.category !== undefined) upd.category = input.category;
+  if (input.severity !== undefined) upd.severity = input.severity;
+  if (input.address !== undefined) upd.address = input.address;
+  if (input.city !== undefined) upd.city = input.city;
+  if (input.lat !== undefined) upd.lat = input.lat;
+  if (input.lng !== undefined) upd.lng = input.lng;
+
+  const { error } = await supabase.from("problems").update(upd).eq("id", id);
+  if (error) throw error;
+}
+
 export async function deleteProblem(id: string): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Login necessário para excluir");

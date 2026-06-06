@@ -11,4 +11,5 @@ export { useToggleUpvote } from "./mutations/useToggleUpvote";
 export { useCreateProblem } from "./mutations/useCreateProblem";
 export { useUpdateProblemResponse } from "./mutations/useUpdateProblemResponse";
 export { useDeleteProblem } from "./mutations/useDeleteProblem";
+export { useUpdateProblem } from "./mutations/useUpdateProblem";
 
