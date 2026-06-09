@@ -28,7 +28,8 @@ const ProblemDetailsModal = lazy(() => import("../components/ProblemDetailsModal
 const GestorDashboard = () => {
   const { user, profile, roles, isManager, loading, signOut } = useAuth();
   const navigate = useNavigate();
-  const managerCity = profile?.city || "";
+  // Se o gestor tiver cidade no perfil, filtra por cidade; se não tiver, busca todos os reportes
+  const managerCity = profile?.city && profile.city.trim() !== "" ? profile.city : undefined;
   const isAdmin = roles.includes("admin");
   const { data: problems = [], isLoading } = useProblemsByCityQuery(managerCity);
   const updateStatus = useUpdateStatus();

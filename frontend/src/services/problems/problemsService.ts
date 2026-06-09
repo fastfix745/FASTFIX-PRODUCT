@@ -54,9 +54,9 @@ export async function fetchProblems(city?: string): Promise<Problem[]> {
     });
   }
 
-  // Se for gestor (não admin), também filtra pela cidade dele
-  // (mas já viu todos acima, então agora restringe)
-  if (isManager && !isAdmin && city) {
+  // Se for gestor (não admin) e tiver cidade definida, filtra pela cidade dele
+  // Se não tiver cidade, o gestor vê todos os problemas (como admin)
+  if (isManager && !isAdmin && city && city.trim() !== "") {
     filteredProblems = filteredProblems.filter((p) => {
       // Gestor vê problemas públicos de qualquer cidade + problemas da cidade dele
       if (p.is_public) return true;
