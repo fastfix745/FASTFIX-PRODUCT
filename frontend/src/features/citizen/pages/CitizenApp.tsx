@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useTheme } from "@/features/theme/ThemeProvider";
 import { ProblemListSkeleton } from "@/shared/components/ui/SkeletonLoaders";
+import NotificationBell from "@/features/notifications/components/NotificationBell";
 
 // Importações lazy para otimização de bundle/carregamento
 const ReportModal = lazy(() => import("@/features/problems/components/ReportModal"));
@@ -77,6 +78,8 @@ const CitizenApp = () => {
           >
             {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
+
+          {user && <NotificationBell />}
 
           {user ? (
             <Link
