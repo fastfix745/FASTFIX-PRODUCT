@@ -1,5 +1,5 @@
 import { supabase } from "@/services/supabase/client";
-import type { NewProblemInput, Problem, ProblemStatus } from "@/types/auth";
+import type { NewProblemInput, Problem, ProblemStatus, ProblemCategory, ProblemSeverity } from "@/types/problem";
 
 // Busca informações do usuário atual
 async function getCurrentUserInfo() {
@@ -204,7 +204,16 @@ export async function updateProblem(id: string, input: Partial<NewProblemInput>)
     }
   }
 
-  const upd: Record<string, unknown> = {};
+  const upd: {
+    title?: string;
+    description?: string;
+    category?: ProblemCategory;
+    severity?: ProblemSeverity;
+    address?: string;
+    city?: string;
+    lat?: number;
+    lng?: number;
+  } = {};
   if (input.title !== undefined) upd.title = input.title;
   if (input.description !== undefined) upd.description = input.description;
   if (input.category !== undefined) upd.category = input.category;
