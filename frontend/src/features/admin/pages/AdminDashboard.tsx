@@ -7,6 +7,7 @@ import {
   useTogglePublic,
   useUpdateMedia,
   useUpdateProblemResponse,
+  useDeleteProblem,
   uploadProblemMedia,
   Problem,
 } from "@/features/problems/hooks/useProblems";
@@ -34,6 +35,7 @@ const AdminDashboard = () => {
   const togglePublic = useTogglePublic();
   const updateMedia = useUpdateMedia();
   const sendResponse = useUpdateProblemResponse();
+  const deleteProblem = useDeleteProblem();
   const [selectedProblem, setSelectedProblem] = useState<Problem | null>(null);
   const [uploadingBefore, setUploadingBefore] = useState(false);
   const [uploadingAfter, setUploadingAfter] = useState(false);
@@ -115,6 +117,16 @@ const AdminDashboard = () => {
       }
     );
     if (selectedProblem?.id === id) setSelectedProblem((prev) => (prev ? { ...prev, isPublic } : null));
+  };
+
+  const handleDeleteProblem = (id: string) => {
+    deleteProblem.mutate(
+      { id },
+      {
+        onSuccess: () => toast.success("Denúncia excluída com sucesso"),
+        onError: (err) => toast.error("Erro ao excluir", { description: (err as Error).message }),
+      }
+    );
   };
 
   const handleUpload = async (kind: "before" | "after", files: FileList | null) => {
@@ -253,6 +265,7 @@ const AdminDashboard = () => {
             onSelectProblem={setSelectedProblem}
             handleStatusChange={handleStatusChange}
             handleTogglePublic={handleTogglePublic}
+            handleDeleteProblem={handleDeleteProblem}
           />
         </div>
       )}

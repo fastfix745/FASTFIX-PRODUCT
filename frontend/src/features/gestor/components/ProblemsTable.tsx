@@ -1,5 +1,5 @@
 import { useState, memo } from "react";
-import { BarChart3, Search, Globe, Eye } from "lucide-react";
+import { BarChart3, Search, Globe, Eye, Trash2 } from "lucide-react";
 import { Switch } from "@/shared/components/ui/switch";
 import {
   categoryConfig,
@@ -15,6 +15,7 @@ interface ProblemsTableProps {
   onSelectProblem: (problem: Problem) => void;
   handleStatusChange: (id: string, newStatus: Status) => void;
   handleTogglePublic: (id: string, isPublic: boolean) => void;
+  handleDeleteProblem: (id: string) => void;
 }
 
 export const ProblemsTable = memo(({
@@ -22,6 +23,7 @@ export const ProblemsTable = memo(({
   onSelectProblem,
   handleStatusChange,
   handleTogglePublic,
+  handleDeleteProblem,
 }: ProblemsTableProps) => {
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -143,14 +145,28 @@ export const ProblemsTable = memo(({
                       </div>
                     </td>
                     <td className="py-3 px-3 text-center whitespace-nowrap">
-                      <button
-                        onClick={() => onSelectProblem(p)}
-                        className="p-1.5 rounded-lg hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors"
-                        title="Visualizar Detalhes"
-                        type="button"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          onClick={() => onSelectProblem(p)}
+                          className="p-1.5 rounded-lg hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors"
+                          title="Visualizar Detalhes"
+                          type="button"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (window.confirm("Tem certeza que deseja excluir esta denúncia?")) {
+                              handleDeleteProblem(p.id);
+                            }
+                          }}
+                          className="p-1.5 rounded-lg hover:bg-severity-critical/10 text-muted-foreground hover:text-severity-critical transition-colors"
+                          title="Excluir Denúncia"
+                          type="button"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
