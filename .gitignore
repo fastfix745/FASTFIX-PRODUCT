@@ -28,3 +28,4 @@ frontend/.env
 *.sw?
 frontend/.env
 .claude/
+.claude/
