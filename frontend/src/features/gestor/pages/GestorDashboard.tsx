@@ -98,7 +98,7 @@ const GestorDashboard = () => {
 
   const handleDeleteProblem = (id: string) => {
     deleteProblem.mutate(
-      { id },
+      id,
       {
         onSuccess: () => toast.success("Denúncia excluída com sucesso"),
         onError: (err) => toast.error("Erro ao excluir", { description: (err as Error).message }),
