@@ -26,3 +26,4 @@ frontend/.env
 *.njsproj
 *.sln
 *.sw?
+frontend/.env
