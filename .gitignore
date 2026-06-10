@@ -27,3 +27,4 @@ frontend/.env
 *.sln
 *.sw?
 frontend/.env
+.claude/
