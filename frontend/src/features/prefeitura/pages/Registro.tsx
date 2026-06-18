@@ -10,15 +10,18 @@ import {
   Mail,
   CheckCircle2,
   Camera,
-  Plus
+  Plus,
+  Shield
 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import NavBar from "../components/NavBar";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 type Step = 1 | 2 | 3;
 
@@ -49,9 +52,32 @@ const steps = [
 
 const Registro = () => {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [isComplete, setIsComplete] = useState(false);
   const [protocolo, setProtocolo] = useState("");
+
+  // Proteção de rota
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+      </div>
+    );
+  }
+
+  if (!user) return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-mesh p-4">
+      <div className="glass-card rounded-3xl p-8 max-w-sm text-center shadow-elegant">
+        <Shield className="w-10 h-10 mx-auto text-accent mb-3" />
+        <h2 className="font-display font-bold text-xl text-foreground">Login necessário</h2>
+        <p className="text-sm text-muted-foreground mt-2">Faça login ou crie uma conta para registrar uma demanda.</p>
+        <Button onClick={() => navigate("/auth")} className="mt-5 w-full bg-gradient-accent text-accent-foreground font-bold">
+          Entrar / Criar conta
+        </Button>
+      </div>
+    </div>
+  );
 
   const [formData, setFormData] = useState<FormData>({
     tipoProblema: "",

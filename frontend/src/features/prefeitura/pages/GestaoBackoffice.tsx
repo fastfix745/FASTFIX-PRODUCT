@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   List,
@@ -10,7 +10,10 @@ import {
   Plus,
   AlertCircle,
   Clock,
-  CheckCircle2
+  CheckCircle2,
+  Calendar,
+  Shield,
+  X
 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -22,7 +25,9 @@ import {
   TableHeader,
   TableRow
 } from "@/shared/components/ui/table";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import NavBar from "../components/NavBar";
+import { Loader2 } from "lucide-react";
 
 interface Demanda {
   id: string;
@@ -118,13 +123,69 @@ const priorityConfig = {
 };
 
 type StatusFilter = "all" | "pending" | "in_progress" | "resolved";
-type ActiveTab = "demandas" | "dashboard" | "mapa" | "relatorios" | "configuracoes";
+type ActiveTab = "demandas" | "dashboard" | "mapa" | "relatorios" | "configuracoes" | "agenda";
+
+interface AgendaItem {
+  id: string;
+  titulo: string;
+  data: string;
+  hora: string;
+  tipo: "reuniao" | "vistoria" | "prazo" | "outro";
+  concluido: boolean;
+}
 
 const GestaoBackoffice = () => {
+  const navigate = useNavigate();
+  const { user, isManager, loading } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [activeTab, setActiveTab] = useState<ActiveTab>("demandas");
   const [notificacoesAtivas, setNotificacoesAtivas] = useState(true);
+  const [agendaItems, setAgendaItems] = useState<AgendaItem[]>([
+    { id: "1", titulo: "Vistoria Rua das Palmeiras", data: "20/06/2026", hora: "09:00", tipo: "vistoria", concluido: false },
+    { id: "2", titulo: "Reunião SEMOP — prioridades do mês", data: "21/06/2026", hora: "14:00", tipo: "reuniao", concluido: false },
+    { id: "3", titulo: "Prazo: resposta demanda PFX-0338", data: "22/06/2026", hora: "17:00", tipo: "prazo", concluido: false },
+    { id: "4", titulo: "Revisão calçadas Boa Vista", data: "25/06/2026", hora: "10:00", tipo: "vistoria", concluido: true },
+  ]);
+  const [novoItem, setNovoItem] = useState({ titulo: "", data: "", hora: "", tipo: "outro" as const });
+  const [showForm, setShowForm] = useState(false);
+
+  // Proteção de rota
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+      </div>
+    );
+  }
+
+  if (!user) return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-mesh p-4">
+      <div className="glass-card rounded-3xl p-8 max-w-sm text-center shadow-elegant">
+        <Shield className="w-10 h-10 mx-auto text-accent mb-3" />
+        <h2 className="font-display font-bold text-xl text-foreground">Acesso restrito</h2>
+        <p className="text-sm text-muted-foreground mt-2">Faça login para acessar o backoffice da prefeitura.</p>
+        <Button onClick={() => navigate("/auth")} className="mt-5 w-full bg-gradient-accent text-accent-foreground font-bold">
+          Entrar
+        </Button>
+      </div>
+    </div>
+  );
+
+  if (!isManager) return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-mesh p-4">
+      <div className="glass-card rounded-3xl p-8 max-w-md text-center shadow-elegant">
+        <Shield className="w-10 h-10 mx-auto text-red-500 mb-3" />
+        <h2 className="font-display font-bold text-xl text-foreground">Área exclusiva para gestores</h2>
+        <p className="text-sm text-muted-foreground mt-2">
+          Esta área é exclusiva para gestores municipais. Solicite acesso ao administrador.
+        </p>
+        <Button onClick={() => navigate("/painel")} variant="outline" className="mt-5">
+          Ver painel público
+        </Button>
+      </div>
+    </div>
+  );
 
   const filteredDemandas = useMemo(() => {
     return demandasMock.filter((demanda) => {
@@ -154,8 +215,44 @@ const GestaoBackoffice = () => {
     { icon: List, label: "Demandas", tab: "demandas" },
     { icon: Map, label: "Mapa", tab: "mapa" },
     { icon: FileText, label: "Relatórios", tab: "relatorios" },
+    { icon: Calendar, label: "Agenda", tab: "agenda" },
     { icon: Settings, label: "Configurações", tab: "configuracoes" }
   ];
+
+  const tipoBadgeConfig = {
+    reuniao: { label: "Reunião", class: "bg-blue-500/20 text-blue-600" },
+    vistoria: { label: "Vistoria", class: "bg-yellow-500/20 text-yellow-600" },
+    prazo: { label: "Prazo", class: "bg-red-500/20 text-red-600" },
+    outro: { label: "Outro", class: "bg-gray-500/20 text-gray-600" }
+  };
+
+  const toggleConcluido = (id: string) => {
+    setAgendaItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, concluido: !item.concluido } : item
+      )
+    );
+  };
+
+  const deleteItem = (id: string) => {
+    setAgendaItems((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const addAgendaItem = () => {
+    if (novoItem.titulo && novoItem.data && novoItem.hora) {
+      const newItem: AgendaItem = {
+        id: Date.now().toString(),
+        titulo: novoItem.titulo,
+        data: novoItem.data,
+        hora: novoItem.hora,
+        tipo: novoItem.tipo,
+        concluido: false
+      };
+      setAgendaItems((prev) => [...prev, newItem].sort((a, b) => a.data.localeCompare(b.data)));
+      setNovoItem({ titulo: "", data: "", hora: "", tipo: "outro" });
+      setShowForm(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -223,6 +320,7 @@ const GestaoBackoffice = () => {
                 {activeTab === "dashboard" && "Dashboard"}
                 {activeTab === "mapa" && "Mapa de Demandas"}
                 {activeTab === "relatorios" && "Relatórios"}
+                {activeTab === "agenda" && "Agenda"}
                 {activeTab === "configuracoes" && "Configurações"}
               </h2>
               <p className="text-sm text-muted-foreground">Prefeitura de Marília — Junho 2026</p>
@@ -586,6 +684,112 @@ const GestaoBackoffice = () => {
                     Salvar alterações
                   </Button>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "agenda" && (
+            <div className="space-y-6">
+              {/* Header da agenda com botão */}
+              <div className="flex items-center justify-between">
+                <h3 className="font-display text-lg font-bold text-foreground">Próximos compromissos</h3>
+                <Button onClick={() => setShowForm(true)} className="bg-[#1B3A6B] text-white">
+                  <Plus className="w-4 h-4 mr-2" /> Novo item
+                </Button>
+              </div>
+
+              {/* Formulário para adicionar novo item */}
+              {showForm && (
+                <div className="glass-card rounded-xl p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="font-bold text-foreground">Novo compromisso</h4>
+                    <button onClick={() => setShowForm(false)} className="text-muted-foreground hover:text-foreground">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Título</label>
+                      <Input
+                        value={novoItem.titulo}
+                        onChange={(e) => setNovoItem({ ...novoItem, titulo: e.target.value })}
+                        placeholder="Título do compromisso"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Tipo</label>
+                      <select
+                        value={novoItem.tipo}
+                        onChange={(e) => setNovoItem({ ...novoItem, tipo: e.target.value as AgendaItem["tipo"] })}
+                        className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+                      >
+                        <option value="reuniao">Reunião</option>
+                        <option value="vistoria">Vistoria</option>
+                        <option value="prazo">Prazo</option>
+                        <option value="outro">Outro</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Data</label>
+                      <Input
+                        type="text"
+                        value={novoItem.data}
+                        onChange={(e) => setNovoItem({ ...novoItem, data: e.target.value })}
+                        placeholder="DD/MM/AAAA"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Hora</label>
+                      <Input
+                        type="text"
+                        value={novoItem.hora}
+                        onChange={(e) => setNovoItem({ ...novoItem, hora: e.target.value })}
+                        placeholder="HH:MM"
+                      />
+                    </div>
+                  </div>
+                  <Button onClick={addAgendaItem} className="w-full bg-[#1B3A6B] text-white">
+                    Adicionar
+                  </Button>
+                </div>
+              )}
+
+              {/* Lista de itens da agenda */}
+              <div className="space-y-3">
+                {agendaItems.map((item) => {
+                  const TipoBadge = tipoBadgeConfig[item.tipo];
+                  return (
+                    <div
+                      key={item.id}
+                      className={`glass-card rounded-xl p-4 flex items-center gap-4 ${
+                        item.concluido ? "opacity-60" : ""
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={item.concluido}
+                        onChange={() => toggleConcluido(item.id)}
+                        className="w-5 h-5 rounded border-2 border-[#1B3A6B] accent-[#1B3A6B]"
+                      />
+                      <div className="flex-1">
+                        <p className={`font-medium ${item.concluido ? "line-through text-muted-foreground" : "text-foreground"}`}>
+                          {item.titulo}
+                        </p>
+                        <p className="text-sm text-muted-foreground">{item.data} às {item.hora}</p>
+                      </div>
+                      <span className={`text-xs font-bold px-2 py-1 rounded-full ${TipoBadge.class}`}>
+                        {TipoBadge.label}
+                      </span>
+                      <span className="text-sm text-muted-foreground font-mono">{item.hora}</span>
+                      <button
+                        onClick={() => deleteItem(item.id)}
+                        className="text-muted-foreground hover:text-red-500 transition-colors"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}

@@ -19,7 +19,7 @@ import { ForgotPasswordForm } from "../components/ForgotPasswordForm";
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, isManager } = useAuth();
   const signUp = useSignUpMutation();
   const signIn = useSignInMutation();
   const resetPassword = useResetPasswordMutation();
@@ -32,8 +32,14 @@ const Auth = () => {
   const loading = signUp.isPending || signIn.isPending || resetPassword.isPending || googleSignIn.isPending;
 
   useEffect(() => {
-    if (!authLoading && user) navigate("/app", { replace: true });
-  }, [user, authLoading, navigate]);
+    if (!authLoading && user) {
+      if (isManager) {
+        navigate("/backoffice", { replace: true });
+      } else {
+        navigate("/painel", { replace: true });
+      }
+    }
+  }, [user, authLoading, isManager, navigate]);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +54,8 @@ const Auth = () => {
 
     try {
       await signIn.mutateAsync({ email: email.trim(), password });
-      navigate("/app", { replace: true });
+      if (isManager) navigate("/backoffice", { replace: true });
+      else navigate("/painel", { replace: true });
     } catch (err) {
       const f = friendlyAuthError((err as Error).message);
       toast.error(f.title, { description: f.description });
@@ -72,7 +79,7 @@ const Auth = () => {
 
       if (result.session) {
         toast.success("Conta criada!", { description: "Bem-vindo ao FastFix." });
-        navigate("/app", { replace: true });
+        navigate("/painel", { replace: true });
       } else {
         toast.success("Confirme seu e-mail", {
           description: "Enviamos um link de ativação para " + data.email,
@@ -182,6 +189,17 @@ const Auth = () => {
             {mode === "login" ? "Não tem conta? Criar uma" : "Já tem conta? Entrar"}
           </button>
         )}
+
+        {/* Link para gestor */}
+        <div className="mt-4 p-3 rounded-xl bg-muted/50 border border-border text-center">
+          <p className="text-xs text-muted-foreground mb-2">É gestor de uma prefeitura?</p>
+          <Link
+            to="/gestor"
+            className="text-xs font-semibold text-accent hover:underline"
+          >
+            Acessar painel do gestor →
+          </Link>
+        </div>
       </div>
     </div>
   );

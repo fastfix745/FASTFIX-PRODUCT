@@ -1,8 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
-import { Building2, Landmark, User, ArrowLeft } from "lucide-react";
+import { Building2, Landmark, User, ArrowLeft, LogOut } from "lucide-react";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 const NavBar = () => {
   const location = useLocation();
+  const { user, signOut } = useAuth();
   const currentPath = location.pathname;
 
   const isActive = (path: string) => currentPath === path;
@@ -75,13 +77,24 @@ const NavBar = () => {
           </div>
 
           {/* Voltar ao site */}
-          <Link
-            to="/"
-            className="flex items-center gap-1.5 text-sm text-white/70 hover:text-white transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Voltar ao site</span>
-          </Link>
+          <div className="flex items-center gap-3">
+            {user && (
+              <button
+                onClick={signOut}
+                className="flex items-center gap-1.5 text-xs font-medium text-white/70 hover:text-white px-2 py-1 rounded-lg hover:bg-white/10 transition-colors"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                Sair
+              </button>
+            )}
+            <Link
+              to="/"
+              className="flex items-center gap-1.5 text-sm text-white/70 hover:text-white transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Voltar ao site</span>
+            </Link>
+          </div>
         </div>
       </div>
     </nav>
