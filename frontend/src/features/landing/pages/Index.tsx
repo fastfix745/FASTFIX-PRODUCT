@@ -18,6 +18,7 @@ import {
   Sun,
   Moon,
   LogIn,
+  ClipboardList,
 } from "lucide-react";
 import { useProblems } from "@/features/problems/hooks/useProblems";
 import type { Problem } from "@/types/problem";
