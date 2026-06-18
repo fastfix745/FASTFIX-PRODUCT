@@ -100,15 +100,14 @@ const Landing = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="animate-fade-in-up">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 border border-accent/20 text-accent text-xs font-bold uppercase tracking-wider">
-                <Sparkles className="w-3.5 h-3.5" /> GovTech · Smart City
+                <Sparkles className="w-3.5 h-3.5" /> SaaS B2G · Gestão Pública
               </div>
               <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mt-5 leading-[1.05]">
-                Plataforma Inteligente de{" "}
-                <span className="text-gradient-accent">Gestão Urbana</span> e Participação Cidadã
+                Gestão inteligente de{" "}
+                <span className="text-gradient-accent">demandas para prefeituras</span>
               </h2>
               <p className="text-base lg:text-lg text-muted-foreground mt-5 max-w-xl leading-relaxed">
-                FastFix conecta prefeituras e cidadãos em tempo real. Reportes geolocalizados, dashboards executivos
-                e inteligência operacional para transformar dados urbanos em ação pública eficiente.
+                Receba, organize e resolva as demandas dos cidadãos com transparência e eficiência. Tudo em uma plataforma.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 mt-8">
                 <Button
@@ -116,13 +115,13 @@ const Landing = () => {
                   size="lg"
                   className="bg-gradient-accent text-accent-foreground font-bold shadow-glow hover:opacity-95 h-12 px-6"
                 >
-                  <a href="#contato">
-                    Agendar Demonstração <ArrowRight className="ml-2 w-4 h-4" />
-                  </a>
+                  <Link to="/painel">
+                    Ver demonstração <ArrowRight className="ml-2 w-4 h-4" />
+                  </Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="font-semibold h-12 px-6">
-                  <Link to="/app">
-                    <Eye className="mr-2 w-4 h-4" /> Ver como Cidadão
+                  <Link to="/backoffice">
+                    <Eye className="mr-2 w-4 h-4" /> Acessar backoffice
                   </Link>
                 </Button>
               </div>
@@ -189,17 +188,17 @@ const Landing = () => {
           <div className="text-center max-w-2xl mx-auto mb-14">
             <p className="text-xs font-bold uppercase tracking-widest text-accent">Os 4 Pilares</p>
             <h3 className="font-display text-3xl sm:text-4xl font-bold text-foreground mt-3">
-              Cidades inteligentes começam com infraestrutura digital
+              Tudo que sua prefeitura precisa
             </h3>
             <p className="text-muted-foreground mt-4">
-              Uma plataforma única que integra participação popular, inteligência operacional e transparência pública.
+              Uma plataforma completa que conecta cidadãos e gestores públicos em um ciclo virtuoso de demandas.
             </p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            <Pillar icon={Users} title="Participação" desc="Cidadãos reportam ocorrências em segundos com foto e geolocalização." />
-            <Pillar icon={Brain} title="Inteligência" desc="IA classifica, prioriza e detecta padrões urbanos automaticamente." />
-            <Pillar icon={Eye} title="Transparência" desc="Status público de cada chamado e indicadores abertos da cidade." />
-            <Pillar icon={Zap} title="Eficiência" desc="Equipes operacionais com SLA, métricas e roteirização inteligente." />
+            <Pillar icon={Building2} title="Backoffice completo" desc="Triagem, atribuição e controle por secretaria." />
+            <Pillar icon={BarChart3} title="Painel público" desc="Placar mensal de demandas resolvidas visível para todos." />
+            <Pillar icon={ClipboardList} title="Registro simplificado" desc="Cidadão registra em 3 passos e recebe protocolo." />
+            <Pillar icon={Shield} title="Controle por secretaria" desc="Cada setor vê apenas suas demandas atribuídas." />
           </div>
         </div>
       </section>
@@ -208,38 +207,54 @@ const Landing = () => {
       <section id="solucao" className="py-20 lg:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center max-w-2xl mx-auto mb-14">
-            <p className="text-xs font-bold uppercase tracking-widest text-accent">Uma plataforma · Dois mundos</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-accent">Como funciona</p>
             <h3 className="font-display text-3xl sm:text-4xl font-bold text-foreground mt-3">
-              Construído para cidadãos e prefeituras
+              Um ciclo virtuoso de demandas
             </h3>
           </div>
-          <div className="grid lg:grid-cols-2 gap-6">
+          <div className="grid lg:grid-cols-4 gap-6">
             <SolutionCard
-              eyebrow="Para Prefeituras"
-              icon={Building2}
-              title="Centro de Operações Urbano"
+              eyebrow="Passo 1"
+              icon={Smartphone}
+              title="Cidadão registra"
               items={[
-                "Dashboard executivo com KPIs em tempo real",
-                "Mapas de calor e bairros críticos",
-                "SLA por categoria e secretaria",
-                "Gestão de equipes e produtividade",
-                "Relatórios inteligentes e auditoria",
+                "Registra a demanda com foto e localização",
+                "Recebe protocolo de acompanhamento",
               ]}
-              cta={{ label: "Ver Painel Gestor", to: "/gestor" }}
+              cta={{ label: "Ver registro", to: "/registrar" }}
+              variant="accent"
+            />
+            <SolutionCard
+              eyebrow="Passo 2"
+              icon={Building2}
+              title="Prefeitura triage"
+              items={[
+                "Recebe, faz triagem e atribui",
+                "Direciona para a secretaria responsável",
+              ]}
+              cta={{ label: "Ver backoffice", to: "/backoffice" }}
               variant="primary"
             />
             <SolutionCard
-              eyebrow="Para Cidadãos"
-              icon={Smartphone}
-              title="Aplicativo Simples e Rápido"
+              eyebrow="Passo 3"
+              icon={Zap}
+              title="Secretaria resolve"
               items={[
-                "Reporte em 4 passos: foto, local, categoria, envio",
-                "Localização automática via GPS",
-                "Acompanhamento por timeline visual",
-                "Apoio comunitário aos problemas",
-                "Notificações de progresso",
+                "Secretaria resolve e atualiza o status",
+                "Registra a solução com evidências",
               ]}
-              cta={{ label: "Abrir App Cidadão", to: "/app" }}
+              cta={{ label: "Ver backoffice", to: "/backoffice" }}
+              variant="primary"
+            />
+            <SolutionCard
+              eyebrow="Passo 4"
+              icon={Eye}
+              title="Cidadão acompanha"
+              items={[
+                "Acompanha pelo protocolo",
+                "Cidade vê o placar público",
+              ]}
+              cta={{ label: "Ver painel", to: "/painel" }}
               variant="accent"
             />
           </div>
@@ -251,19 +266,19 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-end justify-between flex-wrap gap-4 mb-10">
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-accent">Transparência Pública · Ao vivo</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-accent">Transparência Pública</p>
               <h3 className="font-display text-3xl sm:text-4xl font-bold text-foreground mt-3">
-                Indicadores reais da cidade
+                Resultados visíveis para todos
               </h3>
             </div>
-            <Link to="/app" className="text-sm font-semibold text-accent hover:underline inline-flex items-center gap-1">
-              Ver mapa completo <ArrowRight className="w-4 h-4" />
+            <Link to="/painel" className="text-sm font-semibold text-accent hover:underline inline-flex items-center gap-1">
+              Ver painel completo <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <LiveStat icon={BarChart3} label="Ocorrências registradas" value={total} accent />
+            <LiveStat icon={BarChart3} label="Demandas recebidas" value={total} accent />
             <LiveStat icon={CheckCircle2} label="Taxa de resolução" value={`${resolutionRate}%`} />
-            <LiveStat icon={TrendingUp} label="Apoios da comunidade" value={totalUpvotes} />
+            <LiveStat icon={TrendingUp} label="Bairros atendidos" value={total} />
             <LiveStat icon={Calendar} label="Em andamento" value={inProgress} />
           </div>
         </div>
@@ -277,19 +292,19 @@ const Landing = () => {
             <div className="relative">
               <p className="text-xs font-bold uppercase tracking-widest text-accent-glow">Próximo passo</p>
               <h3 className="font-display text-3xl sm:text-5xl font-bold text-primary-foreground mt-3 max-w-2xl mx-auto leading-tight">
-                Transforme sua cidade em uma operação Smart City
+                Sua prefeitura pronta para o próximo nível
               </h3>
               <p className="text-primary-foreground/80 mt-4 max-w-xl mx-auto">
-                Agende uma demonstração de 30 minutos e veja como o FastFix pode reduzir o tempo médio de resolução em até 60%.
+                Mostre para os cidadãos que as demandas estão sendo resolvidas.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center mt-8">
                 <Button asChild size="lg" className="bg-accent text-accent-foreground font-bold h-12 px-6 hover:opacity-95">
-                  <a href="mailto:Fastfix745@gmail.com">
-                    Agendar Demonstração <ArrowRight className="ml-2 w-4 h-4" />
-                  </a>
+                  <Link to="/painel">
+                    Ver protótipo completo <ArrowRight className="ml-2 w-4 h-4" />
+                  </Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="font-semibold h-12 px-6 bg-transparent text-primary-foreground border-primary-foreground/30 hover:bg-primary-foreground/10">
-                  <Link to="/gestor">Explorar Painel</Link>
+                  <Link to="/backoffice">Explorar Backoffice</Link>
                 </Button>
               </div>
             </div>
