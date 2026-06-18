@@ -80,7 +80,7 @@ const GestaoBackoffice = () => {
     { id: "3", titulo: "Prazo: resposta demanda PFX-0338", data: "22/06/2026", hora: "17:00", tipo: "prazo", concluido: false },
     { id: "4", titulo: "Revisão calçadas Boa Vista", data: "25/06/2026", hora: "10:00", tipo: "vistoria", concluido: true },
   ]);
-  const [novoItem, setNovoItem] = useState({ titulo: "", data: "", hora: "", tipo: "outro" as const });
+  const [novoItem, setNovoItem] = useState<{ titulo: string; data: string; hora: string; tipo: AgendaItem["tipo"] }>({ titulo: "", data: "", hora: "", tipo: "outro" });
   const [showForm, setShowForm] = useState(false);
 
   // Proteção de rota
