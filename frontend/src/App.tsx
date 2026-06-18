@@ -14,6 +14,9 @@ const AdminDashboard = lazy(() => import("@/features/admin/pages/AdminDashboard"
 const Transparencia = lazy(() => import("@/features/transparencia/pages/Transparencia"));
 const Settings = lazy(() => import("@/features/settings/pages/Settings"));
 const NotFound = lazy(() => import("@/layouts/NotFound"));
+const PainelPublico = lazy(() => import("@/features/prefeitura/pages/PainelPublico"));
+const Backoffice = lazy(() => import("@/features/prefeitura/pages/Backoffice"));
+const RegistrarDemanda = lazy(() => import("@/features/prefeitura/pages/RegistrarDemanda"));
 
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
@@ -58,6 +61,9 @@ const App = () => {
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/transparencia" element={<Transparencia />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/prefeitura" element={<PainelPublico />} />
+            <Route path="/prefeitura/backoffice" element={<Backoffice />} />
+            <Route path="/prefeitura/registrar" element={<RegistrarDemanda />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>

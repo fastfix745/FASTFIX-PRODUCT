@@ -60,6 +60,7 @@ const Landing = () => {
             <a href="#solucao" className="hover:text-foreground transition-colors">Solução</a>
             <a href="#transparencia" className="hover:text-foreground transition-colors">Transparência</a>
             <a href="#contato" className="hover:text-foreground transition-colors">Contato</a>
+            <Link to="/prefeitura" className="text-accent hover:text-accent/80 transition-colors font-semibold">Prefeitura</Link>
           </nav>
           <div className="flex items-center gap-2">
             <button
