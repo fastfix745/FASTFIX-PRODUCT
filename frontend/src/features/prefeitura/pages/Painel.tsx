@@ -85,16 +85,18 @@ const Painel = () => {
       <NavBar />
 
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        {/* Header */}
+        {/* Header com badge Cidadão */}
         <div className="flex items-center justify-between">
           <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                👤 Cidadão
+              </span>
+            </div>
             <p className="text-sm text-muted-foreground">Prefeitura de Marília</p>
             <h2 className="font-display text-2xl font-bold text-foreground">FastFix</h2>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm">
-              Minhas Demandas
-            </Button>
             <Link to="/registrar">
               <Button size="sm" className="bg-gradient-accent text-accent-foreground">
                 <Plus className="w-4 h-4 mr-1" /> Nova Demanda
@@ -115,7 +117,7 @@ const Painel = () => {
 
           {/* Placar principal */}
           <div className="flex items-baseline gap-2 mb-4">
-            <span className="font-display text-5xl font-bold">{currentData.resolvidas}</span>
+            <span className="font-display text-5xl font-bold" style={{ color: "#F5A623" }}>{currentData.resolvidas}</span>
             <span className="text-2xl opacity-70">/ {currentData.total}</span>
             <span className="text-lg font-medium ml-2">({percentage}%)</span>
           </div>

@@ -123,7 +123,7 @@ const Registro = () => {
 
           <div className="bg-blue-50 dark:bg-blue-950/30 rounded-2xl p-6 mb-6 border border-blue-200 dark:border-blue-800">
             <p className="text-xs text-muted-foreground mb-1">Protocolo de Atendimento</p>
-            <span className="font-mono text-3xl font-bold text-blue-600 tracking-wider">
+            <span className="font-mono text-3xl font-bold tracking-wider" style={{ color: "#1B3A6B" }}>
               {protocolo}
             </span>
           </div>
@@ -329,6 +329,13 @@ const Registro = () => {
   return (
     <div className="min-h-screen bg-background">
       <NavBar />
+
+      {/* Badge Cidadão no topo */}
+      <div className="max-w-2xl mx-auto px-4 pt-4">
+        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+          👤 Cidadão
+        </span>
+      </div>
 
       {renderProgress()}
 

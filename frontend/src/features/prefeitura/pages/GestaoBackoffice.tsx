@@ -205,9 +205,14 @@ const GestaoBackoffice = () => {
 
         {/* Main content */}
         <main className="flex-1 p-6">
-          {/* Header */}
+          {/* Header com badge Prefeitura */}
           <div className="flex items-center justify-between mb-6">
             <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#1B3A6B] text-white">
+                  🏛️ Prefeitura
+                </span>
+              </div>
               <h2 className="font-display text-2xl font-bold text-foreground">Gestão de Demandas</h2>
               <p className="text-sm text-muted-foreground">Prefeitura de Marília — Junho 2026</p>
             </div>
@@ -221,19 +226,31 @@ const GestaoBackoffice = () => {
           {/* Cards de resumo */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="glass-card rounded-xl p-4">
-              <p className="text-xs text-muted-foreground mb-1">Total</p>
+              <div className="flex items-center gap-2 mb-2">
+                <List className="w-4 h-4 text-accent" />
+                <p className="text-xs text-muted-foreground">Total</p>
+              </div>
               <p className="font-display text-2xl font-bold text-foreground">{totals.total}</p>
             </div>
             <div className="glass-card rounded-xl p-4 border-l-4 border-red-500">
-              <p className="text-xs text-muted-foreground mb-1">Pendentes</p>
+              <div className="flex items-center gap-2 mb-2">
+                <AlertCircle className="w-4 h-4 text-red-500" />
+                <p className="text-xs text-muted-foreground">Pendentes</p>
+              </div>
               <p className="font-display text-2xl font-bold text-foreground">{totals.pendentes}</p>
             </div>
             <div className="glass-card rounded-xl p-4 border-l-4 border-yellow-500">
-              <p className="text-xs text-muted-foreground mb-1">Em andamento</p>
+              <div className="flex items-center gap-2 mb-2">
+                <Clock className="w-4 h-4 text-yellow-500" />
+                <p className="text-xs text-muted-foreground">Em andamento</p>
+              </div>
               <p className="font-display text-2xl font-bold text-foreground">{totals.andamento}</p>
             </div>
             <div className="glass-card rounded-xl p-4 border-l-4 border-green-500">
-              <p className="text-xs text-muted-foreground mb-1">Resolvidas</p>
+              <div className="flex items-center gap-2 mb-2">
+                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                <p className="text-xs text-muted-foreground">Resolvidas</p>
+              </div>
               <p className="font-display text-2xl font-bold text-foreground">{totals.resolvidas}</p>
             </div>
           </div>

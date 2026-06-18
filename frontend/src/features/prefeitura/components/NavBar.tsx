@@ -1,71 +1,87 @@
 import { Link, useLocation } from "react-router-dom";
-import { Building2, Landmark, ClipboardList } from "lucide-react";
+import { Building2, Landmark, User, ArrowLeft } from "lucide-react";
 
 const NavBar = () => {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  const isActive = (path: string) => {
-    if (path === "/painel") {
-      return currentPath === "/painel";
-    }
-    return currentPath.startsWith(path);
-  };
+  const isActive = (path: string) => currentPath === path;
 
   return (
-    <nav className="sticky top-0 z-50 bg-[#111827] border-b border-gray-700">
+    <nav
+      className="sticky top-0 z-50 border-b border-white/20"
+      style={{ backgroundColor: "#1B3A6B" }}
+    >
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between h-12">
-          <div className="flex items-center gap-6">
-            <Link to="/painel" className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-gradient-accent flex items-center justify-center">
-                <Landmark className="w-4 h-4 text-accent-foreground" />
-              </div>
-              <span className="text-white font-display font-bold text-sm">FastFix</span>
-            </Link>
+        <div className="flex items-center justify-between h-14">
+          {/* Logo FastFix */}
+          <Link to="/painel" className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-[#F5A623] flex items-center justify-center">
+              <Landmark className="w-4 h-4 text-white" />
+            </div>
+            <span className="text-white font-display font-bold text-lg">FastFix</span>
+          </Link>
 
+          {/* Centro: dois grupos separados */}
+          <div className="hidden md:flex items-center gap-6">
+            {/* Grupo Cidadão */}
             <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/10 text-white/60 text-xs font-medium">
+                <User className="w-3.5 h-3.5" />
+                <span>Cidadão</span>
+              </div>
               <Link
                 to="/painel"
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                  isActive("/painel") && !isActive("/backoffice") && !isActive("/registrar")
-                    ? "bg-accent text-accent-foreground"
-                    : "text-gray-300 hover:text-white hover:bg-gray-700"
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  isActive("/painel")
+                    ? "bg-white/20 text-white"
+                    : "text-white/70 hover:text-white hover:bg-white/10"
                 }`}
               >
-                <Building2 className="w-4 h-4" />
-                <span>Painel Público</span>
+                Painel Público
               </Link>
-
-              <Link
-                to="/backoffice"
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                  isActive("/backoffice")
-                    ? "bg-accent text-accent-foreground"
-                    : "text-gray-300 hover:text-white hover:bg-gray-700"
-                }`}
-              >
-                <Landmark className="w-4 h-4" />
-                <span>Backoffice</span>
-              </Link>
-
               <Link
                 to="/registrar"
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                   isActive("/registrar")
-                    ? "bg-accent text-accent-foreground"
-                    : "text-gray-300 hover:text-white hover:bg-gray-700"
+                    ? "bg-white/20 text-white"
+                    : "text-white/70 hover:text-white hover:bg-white/10"
                 }`}
               >
-                <ClipboardList className="w-4 h-4" />
-                <span>Registrar</span>
+                Registrar
+              </Link>
+            </div>
+
+            {/* Divisor vertical */}
+            <div className="w-px h-8 bg-white/20" />
+
+            {/* Grupo Prefeitura */}
+            <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/10 text-white/60 text-xs font-medium">
+                <Building2 className="w-3.5 h-3.5" />
+                <span>Prefeitura</span>
+              </div>
+              <Link
+                to="/backoffice"
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  isActive("/backoffice")
+                    ? "bg-white/20 text-white"
+                    : "text-white/70 hover:text-white hover:bg-white/10"
+                }`}
+              >
+                Backoffice
               </Link>
             </div>
           </div>
 
-          <div className="text-xs text-gray-400">
-            FastFix Prefecture v1.0
-          </div>
+          {/* Voltar ao site */}
+          <Link
+            to="/"
+            className="flex items-center gap-1.5 text-sm text-white/70 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="hidden sm:inline">Voltar ao site</span>
+          </Link>
         </div>
       </div>
     </nav>

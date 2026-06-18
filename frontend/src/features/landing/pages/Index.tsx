@@ -73,22 +73,16 @@ const Landing = () => {
               {theme === "dark" ? <Sun className="w-4 h-4 text-foreground" /> : <Moon className="w-4 h-4 text-foreground" />}
             </button>
             <Link
-              to="/app"
+              to="/painel"
               className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg text-foreground hover:bg-muted transition-colors"
             >
-              <Smartphone className="w-3.5 h-3.5" /> App Cidadão
+              <Smartphone className="w-3.5 h-3.5" /> Painel Público
             </Link>
             <Link
-              to="/auth"
+              to="/backoffice"
               className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-accent text-accent-foreground hover:opacity-90 transition-opacity"
             >
-              <LogIn className="w-3.5 h-3.5" /> Entrar
-            </Link>
-            <Link
-              to="/gestor"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-            >
-              <Shield className="w-3.5 h-3.5" /> Painel Gestor
+              <Shield className="w-3.5 h-3.5" /> Backoffice
             </Link>
           </div>
         </div>
