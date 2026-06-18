@@ -21,37 +21,13 @@ const dadosMeses: DadosMensais[] = [
   {
     mes: "Junho",
     ano: 2026,
-    resolvidas: 63,
-    total: 179,
+    resolvidas: 0,
+    total: 0,
     porCategoria: {
-      vias: { resolvidas: 28, total: 54 },
-      iluminacao: { resolvidas: 18, total: 42 },
-      saneamento: { resolvidas: 10, total: 50 },
-      limpeza: { resolvidas: 7, total: 33 }
-    }
-  },
-  {
-    mes: "Maio",
-    ano: 2026,
-    resolvidas: 91,
-    total: 142,
-    porCategoria: {
-      vias: { resolvidas: 38, total: 55 },
-      iluminacao: { resolvidas: 22, total: 34 },
-      saneamento: { resolvidas: 18, total: 30 },
-      limpeza: { resolvidas: 13, total: 23 }
-    }
-  },
-  {
-    mes: "Abril",
-    ano: 2026,
-    resolvidas: 77,
-    total: 155,
-    porCategoria: {
-      vias: { resolvidas: 30, total: 58 },
-      iluminacao: { resolvidas: 20, total: 40 },
-      saneamento: { resolvidas: 15, total: 35 },
-      limpeza: { resolvidas: 12, total: 22 }
+      vias: { resolvidas: 0, total: 0 },
+      iluminacao: { resolvidas: 0, total: 0 },
+      saneamento: { resolvidas: 0, total: 0 },
+      limpeza: { resolvidas: 0, total: 0 }
     }
   }
 ];

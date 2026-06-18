@@ -41,74 +41,7 @@ interface Demanda {
   data: string;
 }
 
-const demandasMock: Demanda[] = [
-  {
-    id: "1",
-    protocolo: "PFX-2026-0342",
-    titulo: "Buraco na Rua das Palmeiras",
-    categoria: "Vias",
-    bairro: "Centro",
-    status: "in_progress",
-    prioridade: "alta",
-    secretaria: "SEMOP",
-    data: "12/06/2026"
-  },
-  {
-    id: "2",
-    protocolo: "PFX-2026-0341",
-    titulo: "Poste apagado na Av. Brasil",
-    categoria: "Iluminação",
-    bairro: "Jardim América",
-    status: "pending",
-    prioridade: "media",
-    secretaria: "SEMEL",
-    data: "11/06/2026"
-  },
-  {
-    id: "3",
-    protocolo: "PFX-2026-0340",
-    titulo: "Esgoto a céu aberto na Rua 7",
-    categoria: "Saneamento",
-    bairro: "Vila Nova",
-    status: "resolved",
-    prioridade: "alta",
-    secretaria: "SAAE",
-    data: "08/06/2026"
-  },
-  {
-    id: "4",
-    protocolo: "PFX-2026-0339",
-    titulo: "Lixo acumulado na praça central",
-    categoria: "Limpeza",
-    bairro: "Centro",
-    status: "resolved",
-    prioridade: "baixa",
-    secretaria: "SEMLIM",
-    data: "05/06/2026"
-  },
-  {
-    id: "5",
-    protocolo: "PFX-2026-0338",
-    titulo: "Calçada quebrada na escola estadual",
-    categoria: "Acessibilidade",
-    bairro: "Boa Vista",
-    status: "pending",
-    prioridade: "alta",
-    secretaria: "SEMOP",
-    data: "03/06/2026"
-  },
-  {
-    id: "6",
-    protocolo: "PFX-2026-0337",
-    titulo: "Semáforo com defeito na Av. Central",
-    categoria: "Trânsito",
-    bairro: "Centro",
-    status: "in_progress",
-    prioridade: "alta",
-    secretaria: "SEMTRAN",
-    data: "01/06/2026"
-  }
-];
+const demandasMock: Demanda[] = [];
 
 const statusConfig = {
   pending: { label: "Pendente", class: "bg-red-500/20 text-red-600", icon: AlertCircle },
