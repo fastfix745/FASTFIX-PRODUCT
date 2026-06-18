@@ -17,6 +17,9 @@ const NotFound = lazy(() => import("@/layouts/NotFound"));
 const PainelPublico = lazy(() => import("@/features/prefeitura/pages/PainelPublico"));
 const Backoffice = lazy(() => import("@/features/prefeitura/pages/Backoffice"));
 const RegistrarDemanda = lazy(() => import("@/features/prefeitura/pages/RegistrarDemanda"));
+const Painel = lazy(() => import("@/features/prefeitura/pages/Painel"));
+const GestaoBackoffice = lazy(() => import("@/features/prefeitura/pages/GestaoBackoffice"));
+const Registro = lazy(() => import("@/features/prefeitura/pages/Registro"));
 
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
@@ -64,6 +67,10 @@ const App = () => {
             <Route path="/prefeitura" element={<PainelPublico />} />
             <Route path="/prefeitura/backoffice" element={<Backoffice />} />
             <Route path="/prefeitura/registrar" element={<RegistrarDemanda />} />
+            {/* Novas rotas B2G */}
+            <Route path="/painel" element={<Painel />} />
+            <Route path="/backoffice" element={<GestaoBackoffice />} />
+            <Route path="/registrar" element={<Registro />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
