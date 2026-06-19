@@ -113,9 +113,9 @@ const Landing = () => {
                 </Button>
               </div>
               <div className="grid grid-cols-3 gap-6 mt-10 pt-8 border-t border-border/60">
-                <Stat label="Municípios atendidos" value={12} />
-                <Stat label="Demandas gerenciadas" value={1840} />
-                <Stat label="Taxa de resolução" value="94%" />
+                <Stat label="Municípios atendidos" value={0} />
+                <Stat label="Demandas gerenciadas" value={0} />
+                <Stat label="Taxa de resolução" value="0%" />
               </div>
             </div>
 
@@ -263,10 +263,10 @@ const Landing = () => {
             </Link>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <LiveStat icon={BarChart3} label="Demandas recebidas" value={1840} accent />
-            <LiveStat icon={CheckCircle2} label="Taxa de resolução" value="94%" />
-            <LiveStat icon={TrendingUp} label="Municípios atendidos" value={12} />
-            <LiveStat icon={Calendar} label="Em andamento" value={143} />
+            <LiveStat icon={BarChart3} label="Demandas recebidas" value={0} accent />
+            <LiveStat icon={CheckCircle2} label="Taxa de resolução" value="0%" />
+            <LiveStat icon={TrendingUp} label="Municípios atendidos" value={0} />
+            <LiveStat icon={Calendar} label="Em andamento" value={0} />
           </div>
         </div>
       </section>
