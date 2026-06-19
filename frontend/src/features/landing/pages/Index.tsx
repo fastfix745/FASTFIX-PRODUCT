@@ -113,9 +113,9 @@ const Landing = () => {
                 </Button>
               </div>
               <div className="grid grid-cols-3 gap-6 mt-10 pt-8 border-t border-border/60">
-                <Stat label="Municípios atendidos" value={0} />
-                <Stat label="Demandas gerenciadas" value={0} />
-                <Stat label="Taxa de resolução" value="0%" />
+                <Stat label="Municípios atendidos" value={12} />
+                <Stat label="Demandas gerenciadas" value={1840} />
+                <Stat label="Taxa de resolução" value="94%" />
               </div>
             </div>
 
