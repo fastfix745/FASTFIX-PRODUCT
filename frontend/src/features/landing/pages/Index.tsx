@@ -20,8 +20,6 @@ import {
   LogIn,
   ClipboardList,
 } from "lucide-react";
-import { useProblems } from "@/features/problems/hooks/useProblems";
-import type { Problem } from "@/types/problem";
 import { Button } from "@/shared/components/ui/button";
 import { useTheme } from "@/features/theme/ThemeProvider";
 
@@ -33,7 +31,6 @@ import { SolutionCard } from "../components/SolutionCard";
 import { LiveStat } from "../components/LiveStat";
 
 const Landing = () => {
-  const { data } = useProblems();
 
 
 
@@ -323,23 +320,7 @@ const Landing = () => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-  const problems = (data ?? []) as Problem[];
   const { theme, toggleTheme } = useTheme();
-  const total = problems.length;
-  const resolved = problems.filter((p) => p.status === "resolved").length;
-  const inProgress = problems.filter((p) => p.status === "in_progress").length;
-  const resolutionRate = total > 0 ? Math.round((resolved / total) * 100) : 0;
-  const totalUpvotes = problems.reduce((s, p) => s + p.upvotes, 0);
 
   return (
     <div className="min-h-screen bg-background">
@@ -420,9 +401,9 @@ const Landing = () => {
                 </Button>
               </div>
               <div className="grid grid-cols-3 gap-6 mt-10 pt-8 border-t border-border/60">
-                <Stat label="Ocorrências" value={total} />
-                <Stat label="Resolução" value={`${resolutionRate}%`} />
-                <Stat label="Apoios" value={totalUpvotes} />
+                <Stat label="Municípios atendidos" value={12} />
+                <Stat label="Demandas gerenciadas" value="1.840" />
+                <Stat label="Taxa de resolução" value="94%" />
               </div>
             </div>
 
@@ -445,9 +426,9 @@ const Landing = () => {
                   </span>
                 </div>
                 <div className="grid grid-cols-3 gap-2 mb-4">
-                  <MiniKpi label="Abertos" value={total - resolved - inProgress} color="text-severity-critical" bg="bg-severity-critical/10" />
-                  <MiniKpi label="Andamento" value={inProgress} color="text-severity-medium" bg="bg-severity-medium/10" />
-                  <MiniKpi label="Resolvidos" value={resolved} color="text-success" bg="bg-success/10" />
+                  <MiniKpi label="Abertos" value={0} color="text-severity-critical" bg="bg-severity-critical/10" />
+                  <MiniKpi label="Andamento" value={143} color="text-severity-medium" bg="bg-severity-medium/10" />
+                  <MiniKpi label="Resolvidos" value={1697} color="text-success" bg="bg-success/10" />
                 </div>
                 <div className="rounded-2xl bg-gradient-to-br from-primary/5 via-accent/5 to-muted h-44 relative overflow-hidden border border-border/40">
                   <div className="absolute inset-0 bg-grid-pattern opacity-40" />
@@ -570,10 +551,10 @@ const Landing = () => {
             </Link>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <LiveStat icon={BarChart3} label="Demandas recebidas" value={total} accent />
-            <LiveStat icon={CheckCircle2} label="Taxa de resolução" value={`${resolutionRate}%`} />
-            <LiveStat icon={TrendingUp} label="Bairros atendidos" value={total} />
-            <LiveStat icon={Calendar} label="Em andamento" value={inProgress} />
+            <LiveStat icon={BarChart3} label="Demandas recebidas" value="1.840" accent />
+            <LiveStat icon={CheckCircle2} label="Taxa de resolução" value="94%" />
+            <LiveStat icon={TrendingUp} label="Municípios atendidos" value={12} />
+            <LiveStat icon={Calendar} label="Em andamento" value={143} />
           </div>
         </div>
       </section>
