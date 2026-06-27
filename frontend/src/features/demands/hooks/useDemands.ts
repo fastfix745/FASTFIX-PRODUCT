@@ -83,7 +83,7 @@ export function useCreateDemand() {
         .select()
         .single();
       if (error) throw error;
-      return data;
+      return data as Demand;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['demands'] });

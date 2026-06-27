@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      demands: {
+        Row: {
+          id: string
+          protocol: string
+          title: string
+          description: string | null
+          category: string
+          neighborhood: string | null
+          status: 'pending' | 'in_progress' | 'resolved'
+          priority: 'low' | 'medium' | 'high'
+          secretaria: string | null
+          city: string | null
+          user_id: string | null
+          is_public: boolean
+          resolved_at: string | null
+          created_at: string
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          protocol?: string
+          title: string
+          description?: string | null
+          category: string
+          neighborhood?: string | null
+          status?: 'pending' | 'in_progress' | 'resolved'
+          priority?: 'low' | 'medium' | 'high'
+          secretaria?: string | null
+          city?: string | null
+          user_id?: string | null
+          is_public?: boolean
+          resolved_at?: string | null
+          created_at?: string
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          protocol?: string
+          title?: string
+          description?: string | null
+          category?: string
+          neighborhood?: string | null
+          status?: 'pending' | 'in_progress' | 'resolved'
+          priority?: 'low' | 'medium' | 'high'
+          secretaria?: string | null
+          city?: string | null
+          user_id?: string | null
+          is_public?: boolean
+          resolved_at?: string | null
+          created_at?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string | null
