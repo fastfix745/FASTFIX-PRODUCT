@@ -25,34 +25,22 @@ import {
   TableHeader,
   TableRow
 } from "@/shared/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useAllDemands, useUpdateDemandStatus } from "@/features/demands/hooks/useDemands";
 import NavBar from "../components/NavBar";
 import { Loader2 } from "lucide-react";
 
-interface Demanda {
-  id: string;
-  protocolo: string;
-  titulo: string;
-  categoria: string;
-  bairro: string;
-  status: "pending" | "in_progress" | "resolved";
-  prioridade: "alta" | "media" | "baixa";
-  secretaria: string;
-  data: string;
-}
-
-const demandasMock: Demanda[] = [];
-
-const statusConfig = {
+const statusConfig: Record<string, { label: string; class: string; icon: typeof AlertCircle }> = {
   pending: { label: "Pendente", class: "bg-red-500/20 text-red-600", icon: AlertCircle },
   in_progress: { label: "Em andamento", class: "bg-yellow-500/20 text-yellow-600", icon: Clock },
   resolved: { label: "Resolvido", class: "bg-green-500/20 text-green-600", icon: CheckCircle2 }
 };
 
-const priorityConfig = {
-  alta: { label: "Alta", class: "bg-red-500/20 text-red-600" },
-  media: { label: "Média", class: "bg-yellow-500/20 text-yellow-600" },
-  baixa: { label: "Baixa", class: "bg-blue-500/20 text-blue-600" }
+const priorityConfig: Record<string, { label: string; class: string }> = {
+  high: { label: "Alta", class: "bg-red-500/20 text-red-600" },
+  medium: { label: "Média", class: "bg-yellow-500/20 text-yellow-600" },
+  low: { label: "Baixa", class: "bg-blue-500/20 text-blue-600" }
 };
 
 type StatusFilter = "all" | "pending" | "in_progress" | "resolved";
@@ -70,6 +58,8 @@ interface AgendaItem {
 const GestaoBackoffice = () => {
   const navigate = useNavigate();
   const { user, isManager, loading } = useAuth();
+  const { data: demands = [], isLoading: demandsLoading } = useAllDemands();
+  const updateStatus = useUpdateDemandStatus();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [activeTab, setActiveTab] = useState<ActiveTab>("demandas");
@@ -121,26 +111,26 @@ const GestaoBackoffice = () => {
   );
 
   const filteredDemandas = useMemo(() => {
-    return demandasMock.filter((demanda) => {
+    return demands.filter((demanda: any) => {
       if (statusFilter !== "all" && demanda.status !== statusFilter) {
         return false;
       }
       if (searchTerm) {
         const term = searchTerm.toLowerCase();
         return (
-          demanda.titulo.toLowerCase().includes(term) ||
-          demanda.protocolo.toLowerCase().includes(term)
+          (demanda.title?.toLowerCase().includes(term) ||
+          demanda.protocol?.toLowerCase().includes(term))
         );
       }
       return true;
     });
-  }, [searchTerm, statusFilter]);
+  }, [searchTerm, statusFilter, demands]);
 
   const totals = {
-    total: demandasMock.length,
-    pendentes: demandasMock.filter((d) => d.status === "pending").length,
-    andamento: demandasMock.filter((d) => d.status === "in_progress").length,
-    resolvidas: demandasMock.filter((d) => d.status === "resolved").length
+    total: demands.length,
+    pendentes: demands.filter((d: any) => d.status === "pending").length,
+    andamento: demands.filter((d: any) => d.status === "in_progress").length,
+    resolvidas: demands.filter((d: any) => d.status === "resolved").length
   };
 
   const menuItems: { icon: typeof LayoutDashboard; label: string; tab: ActiveTab }[] = [
@@ -366,38 +356,61 @@ const GestaoBackoffice = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredDemandas.map((demanda) => {
-                      const StatusIcon = statusConfig[demanda.status].icon;
+                    {filteredDemandas.map((demanda: any) => {
+                      const StatusIcon = statusConfig[demanda.status]?.icon || AlertCircle;
                       return (
                         <TableRow key={demanda.id} className="hover:bg-muted/30">
                           <TableCell className="font-mono text-xs font-medium">
-                            {demanda.protocolo}
+                            {demanda.protocol}
                           </TableCell>
                           <TableCell className="text-sm text-foreground">
-                            {demanda.titulo}
+                            {demanda.title}
                           </TableCell>
                           <TableCell className="text-xs">
-                            {demanda.categoria}
+                            {demanda.category}
                           </TableCell>
                           <TableCell className="text-xs">
-                            {demanda.bairro}
+                            {demanda.neighborhood}
                           </TableCell>
                           <TableCell>
-                            <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full ${statusConfig[demanda.status].class}`}>
-                              <StatusIcon className="w-3 h-3" />
-                              {statusConfig[demanda.status].label}
-                            </span>
+                            <Select
+                              value={demanda.status}
+                              onValueChange={(value: "pending" | "in_progress" | "resolved") => {
+                                updateStatus.mutate({ id: demanda.id, status: value });
+                              }}
+                            >
+                              <SelectTrigger className={`w-32 text-[10px] font-bold ${statusConfig[demanda.status]?.class || ''}`}>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="pending">Pendente</SelectItem>
+                                <SelectItem value="in_progress">Em andamento</SelectItem>
+                                <SelectItem value="resolved">Resolvido</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </TableCell>
                           <TableCell>
-                            <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${priorityConfig[demanda.prioridade].class}`}>
-                              {demanda.prioridade.charAt(0).toUpperCase() + demanda.prioridade.slice(1)}
-                            </span>
+                            <Select
+                              value={demanda.priority}
+                              onValueChange={(value: "low" | "medium" | "high") => {
+                                updateStatus.mutate({ id: demanda.id, priority: value });
+                              }}
+                            >
+                              <SelectTrigger className={`w-28 text-[10px] font-bold ${priorityConfig[demanda.priority]?.class || ''}`}>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="high">Alta</SelectItem>
+                                <SelectItem value="medium">Média</SelectItem>
+                                <SelectItem value="low">Baixa</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </TableCell>
                           <TableCell className="text-xs">
-                            {demanda.secretaria}
+                            {demanda.secretaria || '-'}
                           </TableCell>
                           <TableCell className="text-xs text-muted-foreground">
-                            {demanda.data}
+                            {demanda.created_at ? new Date(demanda.created_at).toLocaleDateString('pt-BR') : '-'}
                           </TableCell>
                         </TableRow>
                       );
@@ -512,16 +525,16 @@ const GestaoBackoffice = () => {
 
               {/* Lista de demandas */}
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {demandasMock.map((demanda) => (
+                {demands.map((demanda: any) => (
                   <div key={demanda.id} className="glass-card rounded-xl p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="font-mono text-xs text-muted-foreground">{demanda.protocolo}</span>
-                      <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full ${statusConfig[demanda.status].class}`}>
-                        {statusConfig[demanda.status].label}
+                      <span className="font-mono text-xs text-muted-foreground">{demanda.protocol}</span>
+                      <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full ${statusConfig[demanda.status]?.class || ''}`}>
+                        {statusConfig[demanda.status]?.label || demanda.status}
                       </span>
                     </div>
-                    <p className="font-medium text-foreground mb-1">{demanda.titulo}</p>
-                    <p className="text-sm text-muted-foreground">{demanda.bairro}</p>
+                    <p className="font-medium text-foreground mb-1">{demanda.title}</p>
+                    <p className="text-sm text-muted-foreground">{demanda.neighborhood}</p>
                   </div>
                 ))}
               </div>

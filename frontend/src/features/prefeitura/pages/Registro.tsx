@@ -19,6 +19,8 @@ import { Label } from "@/shared/components/ui/label";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useCreateDemand } from "@/features/demands/hooks/useDemands";
+import { supabase } from "@/services/supabase/client";
 import NavBar from "../components/NavBar";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
@@ -56,6 +58,7 @@ const Registro = () => {
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [isComplete, setIsComplete] = useState(false);
   const [protocolo, setProtocolo] = useState("");
+  const createDemand = useCreateDemand();
 
   // Proteção de rota
   if (loading) {
@@ -98,14 +101,39 @@ const Registro = () => {
     return false;
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep === 3) {
-      // Gerar protocolo
-      const numero = Math.floor(Math.random() * 9000) + 1000;
-      const newProtocolo = `PFX-2026-${numero}`;
-      setProtocolo(newProtocolo);
-      setIsComplete(true);
-      toast.success("Demanda registrada com sucesso!");
+      if (!user) {
+        toast.error("Usuário não autenticado");
+        return;
+      }
+
+      try {
+        // Buscar perfil do usuário para obter a cidade
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('city')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError) throw profileError;
+
+        const result = await createDemand.mutateAsync({
+          title: tipoProblemas.find(t => t.id === formData.tipoProblema)?.label || formData.tipoProblema,
+          description: formData.descricao,
+          category: formData.tipoProblema,
+          neighborhood: formData.bairro,
+          city: profile?.city || '',
+          user_id: user.id
+        });
+
+        setProtocolo(result.protocol);
+        setIsComplete(true);
+        toast.success("Demanda registrada com sucesso!");
+      } catch (error: any) {
+        console.error('Erro ao registrar demanda:', error);
+        toast.error(error.message || "Erro ao registrar demanda");
+      }
     } else {
       setCurrentStep((prev) => (prev + 1) as Step);
     }
@@ -385,11 +413,25 @@ const Registro = () => {
           </Button>
           <Button
             onClick={handleNext}
-            disabled={!canProceed()}
+            disabled={!canProceed() || createDemand.isPending}
             className="flex-1 bg-gradient-accent text-accent-foreground font-bold"
           >
-            {currentStep === 3 ? "Enviar demanda ✓" : "Continuar"}
-            <ArrowRight className="w-4 h-4 ml-2" />
+            {createDemand.isPending ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Enviando...
+              </>
+            ) : currentStep === 3 ? (
+              <>
+                Enviar demanda ✓
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </>
+            ) : (
+              <>
+                Continuar
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </>
+            )}
           </Button>
         </div>
       </div>
